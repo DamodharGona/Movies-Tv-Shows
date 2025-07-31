@@ -9,12 +9,13 @@ import { initDatabase } from "./config/database.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 3000;
 
 // Log the port being used
 console.log(`Using PORT: ${PORT}`);
 console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 console.log(`Railway PORT: ${process.env.PORT || "not set"}`);
+console.log(`Dynamic PORT: ${process.env.PORT || "fallback to 3000"}`);
 
 // Parse JSON requests
 app.use(express.json());
@@ -70,7 +71,7 @@ app.get("/health", (req, res) => {
     message: "Server is running",
     timestamp: new Date().toISOString(),
     port: process.env.PORT || "not set",
-    environment: process.env.NODE_ENV || "development"
+    environment: process.env.NODE_ENV || "development",
   });
 });
 
@@ -80,7 +81,7 @@ app.get("/", (req, res) => {
     status: "ok",
     message: "Movie API is running",
     timestamp: new Date().toISOString(),
-    port: process.env.PORT || "not set"
+    port: process.env.PORT || "not set",
   });
 });
 
