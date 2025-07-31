@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "vercel-build": "echo 'No build step required'",
+    "vercel-dev": "nodemon src/index.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -22,12 +24,16 @@
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "movies",
     "api",
     "express",
-    "mysql"
+    "mysql",
+    "vercel"
   ],
-  "author": "Your Name",
+  "author": "Damodhar Gona",
   "license": "MIT"
 }

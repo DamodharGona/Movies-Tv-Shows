@@ -1,9 +1,5 @@
 # My Favorite Movies & TV Shows Web Application
 
-<!-- Updated for Railway deployment with CORS fixes - Force new deployment -->
-<!-- Trigger new Vercel deployment with Railway backend URL -->
-<!-- Force fresh deployment with environment variable -->
-
 A full-stack web application for managing your personal collection of favorite movies and TV shows.
 
 ## What This App Does
@@ -33,22 +29,59 @@ A full-stack web application for managing your personal collection of favorite m
 
 ## Deployment
 
-### Backend Deployment Options
+### Separate Frontend & Backend Deployment
 
-#### Option 1: Railway (Recommended)
+This project is configured for separate deployment of frontend and backend, each with their own `vercel.json` configuration.
 
-Railway is the easiest option for deploying the backend with MySQL support.
+**Project Structure:**
 
-**Steps:**
-1. Connect your GitHub repository to Railway
-2. Railway will automatically detect the backend configuration
-3. Set up environment variables in Railway dashboard
-4. Deploy!
-
-**Environment Variables for Railway:**
 ```
-PORT=5001
-NODE_ENV=production
+├── frontend/
+│   ├── vercel.json        # Frontend Vercel config
+│   └── ...               # React app files
+├── backend/
+│   ├── vercel.json        # Backend Vercel config
+│   ├── package.json       # Backend dependencies
+│   └── src/              # Express.js server
+└── README.md
+```
+
+### Backend Deployment (Vercel)
+
+**Steps to Deploy Backend:**
+
+1. **Navigate to backend directory:**
+
+   ```bash
+   cd backend
+   ```
+
+2. **Install Vercel CLI:**
+
+   ```bash
+   npm i -g vercel
+   ```
+
+3. **Login to Vercel:**
+
+   ```bash
+   vercel login
+   ```
+
+4. **Deploy backend:**
+
+   ```bash
+   vercel
+   ```
+
+5. **For production deployment:**
+   ```bash
+   vercel --prod
+   ```
+
+**Environment Variables for Backend:**
+
+```
 DB_HOST=your-mysql-host
 DB_USER=your-mysql-user
 DB_PASSWORD=your-mysql-password
@@ -58,42 +91,54 @@ JWT_SECRET=your-jwt-secret-key
 CORS_ORIGIN=https://your-frontend-domain.vercel.app
 ```
 
-#### Option 2: Vercel (Serverless)
+### Frontend Deployment (Vercel)
 
-Vercel can deploy the backend as serverless functions, but has limitations with MySQL.
+**Steps to Deploy Frontend:**
 
-**Steps:**
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel` in the project root
-3. Configure environment variables in Vercel dashboard
+1. **Navigate to frontend directory:**
 
-**Note:** For Vercel, you'll need to use a cloud MySQL service like PlanetScale or Railway's MySQL.
+   ```bash
+   cd frontend
+   ```
 
-### Frontend Deployment (Vercel/Netlify)
+2. **Deploy frontend:**
 
-The frontend can be deployed to Vercel or Netlify.
+   ```bash
+   vercel
+   ```
 
-**Environment Variables:**
+3. **For production deployment:**
+   ```bash
+   vercel --prod
+   ```
+
+**Environment Variables for Frontend:**
+
 ```
-VITE_API_URL=https://your-backend-url.railway.app
+VITE_API_URL=https://your-backend-url.vercel.app
 ```
+
+**Important Notes:**
+
+- For Vercel deployment, you'll need a cloud MySQL service like PlanetScale, Railway, or AWS RDS
+- The backend is configured as serverless functions
+- Database connections are optimized for serverless environment
+- Each directory has its own `vercel.json` for independent deployment
 
 ## How to Run This Project
 
 ### Step 1: Install Dependencies
 
-First, install the frontend dependencies:
+Install backend dependencies:
 
 ```bash
-npm install
+cd backend && npm install
 ```
 
-Then install backend dependencies:
+Install frontend dependencies:
 
 ```bash
-cd backend
-npm install
-cd ..
+cd frontend && npm install
 ```
 
 ### Step 2: Set Up MySQL Database
@@ -113,14 +158,13 @@ This will create the database and add some sample movies for a demo user.
 Start the backend server:
 
 ```bash
-cd backend
-node src/index.js
+cd backend && npm run dev
 ```
 
 In a new terminal, start the frontend:
 
 ```bash
-npm run dev
+cd frontend && npm run dev
 ```
 
 ### Step 4: Open the App

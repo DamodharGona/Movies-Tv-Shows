@@ -4,11 +4,12 @@
   "description": "Full-stack movie and TV show management application",
   "private": true,
   "scripts": {
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
-    "start:backend": "cd backend && npm start"
+    "deploy:frontend": "cd frontend && vercel",
+    "deploy:backend": "cd backend && vercel"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -19,7 +20,8 @@
     "react",
     "express",
     "mysql",
-    "fullstack"
+    "fullstack",
+    "vercel"
   ],
   "author": "Damodhar Gona",
   "license": "MIT"
