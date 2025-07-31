@@ -15,20 +15,16 @@ const PORT = process.env.PORT || 5001;
 // Parse JSON requests
 app.use(express.json());
 
-// Allow requests from frontend
-const allowedOrigins = [
-  "http://localhost:5173", // For local development
-  process.env.FRONTEND_URL, // Frontend URL from environment variable
-  "https://movies-tv-shows-flame.vercel.app", // Vercel frontend
-].filter(Boolean); // Remove undefined values
-
+// Simplified CORS configuration without authentication
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow all origins for now to debug the issue
-      callback(null, true);
-    },
-    credentials: true,
+    origin: [
+      'https://movies-tv-shows-flame.vercel.app', // Your Vercel frontend
+      'http://localhost:5173', // For local development
+      process.env.FRONTEND_URL // From environment variable
+    ].filter(Boolean), // Remove undefined values
+    credentials: false, // Since no auth, you don't need credentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   })
 );
 
