@@ -22,21 +22,8 @@ app.use(express.json());
 
 // CORS configuration - written from scratch
 app.use((req, res, next) => {
-  // Define allowed origins
-  const allowedOrigins = [
-    "https://movies-tv-shows-flame.vercel.app",
-    "http://localhost:5173",
-    process.env.FRONTEND_URL,
-  ].filter(Boolean);
-
-  const origin = req.headers.origin;
-
-  // Check if origin is allowed
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  // Set CORS headers
+  // Allow all origins for now to fix CORS issue
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
