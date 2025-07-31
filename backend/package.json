@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "vercel-build": "echo 'No build step required'",
-    "vercel-dev": "nodemon src/index.js"
+    "build": "echo 'No build step required for Express.js'",
+    "vercel-build": "echo 'No build step required'"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -48,61 +48,68 @@ This project is configured for separate deployment of frontend and backend, each
 
 ### Backend Deployment (Vercel)
 
-**Steps to Deploy Backend:**
+**Express.js Deployment Steps:**
 
 1. **Navigate to backend directory:**
-
    ```bash
    cd backend
    ```
 
 2. **Install Vercel CLI:**
-
    ```bash
    npm i -g vercel
    ```
 
 3. **Login to Vercel:**
-
    ```bash
    vercel login
    ```
 
 4. **Deploy backend:**
-
    ```bash
    vercel
    ```
 
-5. **For production deployment:**
+5. **Follow the prompts:**
+   - Set up and deploy? → `Y`
+   - Which scope? → Select your account
+   - Link to existing project? → `N`
+   - What's your project's name? → `movies-backend`
+   - In which directory is your code located? → `./`
+   - Want to override the settings? → `N`
+
+6. **Set Environment Variables in Vercel Dashboard:**
+   ```
+   DB_HOST=your-mysql-host
+   DB_USER=your-mysql-user
+   DB_PASSWORD=your-mysql-password
+   DB_NAME=movie_app
+   DB_PORT=3306
+   JWT_SECRET=your-jwt-secret-key
+   CORS_ORIGIN=https://your-frontend-domain.vercel.app
+   ```
+
+7. **Redeploy with environment variables:**
    ```bash
    vercel --prod
    ```
 
-**Environment Variables for Backend:**
-
-```
-DB_HOST=your-mysql-host
-DB_USER=your-mysql-user
-DB_PASSWORD=your-mysql-password
-DB_NAME=movie_app
-DB_PORT=3306
-JWT_SECRET=your-jwt-secret-key
-CORS_ORIGIN=https://your-frontend-domain.vercel.app
-```
+**Important Notes:**
+- Uses `@vercel/node` builder (not a framework option)
+- Functions have 30-second timeout
+- Requires cloud MySQL service (PlanetScale, Railway, AWS RDS)
+- Database connections optimized for serverless
 
 ### Frontend Deployment (Vercel)
 
 **Steps to Deploy Frontend:**
 
 1. **Navigate to frontend directory:**
-
    ```bash
    cd frontend
    ```
 
 2. **Deploy frontend:**
-
    ```bash
    vercel
    ```
@@ -113,17 +120,9 @@ CORS_ORIGIN=https://your-frontend-domain.vercel.app
    ```
 
 **Environment Variables for Frontend:**
-
 ```
 VITE_API_URL=https://your-backend-url.vercel.app
 ```
-
-**Important Notes:**
-
-- For Vercel deployment, you'll need a cloud MySQL service like PlanetScale, Railway, or AWS RDS
-- The backend is configured as serverless functions
-- Database connections are optimized for serverless environment
-- Each directory has its own `vercel.json` for independent deployment
 
 ## How to Run This Project
 
