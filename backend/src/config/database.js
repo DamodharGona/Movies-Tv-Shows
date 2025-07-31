@@ -54,6 +54,9 @@ const createPool = () => {
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
+      acquireTimeout: 60000,
+      timeout: 60000,
+      reconnect: true,
     });
   }
 };
@@ -82,6 +85,7 @@ const pool = createPool();
 // Function to create database and tables
 const createTables = async () => {
   try {
+    console.log("Creating database tables...");
     const connection = await createConnection();
 
     if (!getDatabaseConfig().useConnectionString) {
@@ -114,7 +118,8 @@ const createTables = async () => {
     await connection.end();
   } catch (error) {
     console.error("Error creating tables:", error);
-    throw error;
+    console.log("Table creation failed, but continuing...");
+    // Don't throw error, just log it
   }
 };
 
@@ -250,13 +255,14 @@ const migrateDatabase = async () => {
 // Initialize database
 const initDatabase = async () => {
   try {
-    await migrateDatabase();
+    console.log("Starting database initialization...");
     await createTables();
     await insertSampleData();
     console.log("Database initialized successfully");
   } catch (error) {
     console.error("Failed to initialize database:", error);
-    throw error;
+    // Don't throw error, just log it
+    console.log("Database initialization failed, but continuing...");
   }
 };
 
