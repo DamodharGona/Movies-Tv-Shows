@@ -19,16 +19,14 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173", // For local development
   process.env.FRONTEND_URL, // Frontend URL from environment variable
+  "https://movies-tv-shows-flame.vercel.app", // Vercel frontend
 ].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      // Allow all origins for now to debug the issue
+      callback(null, true);
     },
     credentials: true,
   })

@@ -201,19 +201,21 @@ const insertSampleData = async () => {
 // Function to migrate database schema
 const migrateDatabase = async () => {
   try {
+    console.log("Starting database migration...");
     const connection = await createConnection();
     
     // Check if users table exists
     const [tables] = await connection.query("SHOW TABLES LIKE 'users'");
     
     if (tables.length > 0) {
-      console.log("Migrating database schema...");
+      console.log("Users table found, starting migration...");
       
       // Drop the foreign key constraint first
       try {
         await connection.query("ALTER TABLE movies DROP FOREIGN KEY movies_ibfk_1");
+        console.log("Dropped foreign key constraint");
       } catch (error) {
-        console.log("Foreign key constraint already removed or doesn't exist");
+        console.log("Foreign key constraint already removed or doesn't exist:", error.message);
       }
       
       // Remove user_id column from movies table
@@ -221,7 +223,7 @@ const migrateDatabase = async () => {
         await connection.query("ALTER TABLE movies DROP COLUMN user_id");
         console.log("Removed user_id column from movies table");
       } catch (error) {
-        console.log("user_id column already removed or doesn't exist");
+        console.log("user_id column already removed or doesn't exist:", error.message);
       }
       
       // Drop the users table
@@ -229,7 +231,7 @@ const migrateDatabase = async () => {
         await connection.query("DROP TABLE users");
         console.log("Dropped users table");
       } catch (error) {
-        console.log("Users table already dropped or doesn't exist");
+        console.log("Users table already dropped or doesn't exist:", error.message);
       }
       
       console.log("Database migration completed successfully");
@@ -240,7 +242,8 @@ const migrateDatabase = async () => {
     await connection.end();
   } catch (error) {
     console.error("Error during database migration:", error);
-    throw error;
+    // Don't throw error, just log it and continue
+    console.log("Migration failed, but continuing with initialization...");
   }
 };
 
