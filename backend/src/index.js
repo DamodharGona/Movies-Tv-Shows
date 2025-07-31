@@ -4,7 +4,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import movieRoutes from "./routes/movieRoutes.js";
-import { initDatabase } from "./config/database.js";
+// import { initDatabase } from "./config/database.js";
 
 // Load environment variables
 dotenv.config();
@@ -19,12 +19,12 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      'https://movies-tv-shows-flame.vercel.app', // Your Vercel frontend
-      'http://localhost:5173', // For local development
-      process.env.FRONTEND_URL // From environment variable
+      "https://movies-tv-shows-flame.vercel.app", // Your Vercel frontend
+      "http://localhost:5173", // For local development
+      process.env.FRONTEND_URL, // From environment variable
     ].filter(Boolean), // Remove undefined values
     credentials: false, // Since no auth, you don't need credentials
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
@@ -45,6 +45,16 @@ app.get("/health", (req, res) => {
     status: "ok",
     message: "Server is running",
     timestamp: new Date().toISOString(),
+    database: "temporarily disabled for debugging",
+  });
+});
+
+// Test endpoint that doesn't use database
+app.get("/test", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Test endpoint working",
+    cors: "should work now",
   });
 });
 
@@ -66,11 +76,10 @@ app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`API base: http://localhost:${PORT}/api/movies`);
-    
+
     // Temporarily comment out database initialization to isolate the issue
     // await initDatabase();
     // console.log("Database initialized successfully");
-    
   } catch (error) {
     console.error("Failed to start server:", error);
     // Don't exit, just log the error
