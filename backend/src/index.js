@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
@@ -15,19 +14,35 @@ const PORT = process.env.PORT || 5001;
 // Parse JSON requests
 app.use(express.json());
 
-// Simplified CORS configuration without authentication
-app.use(
-  cors({
-    origin: [
-      "https://movies-tv-shows-flame.vercel.app", // Your Vercel frontend
-      "http://localhost:5173", // For local development
-      process.env.FRONTEND_URL, // From environment variable
-    ].filter(Boolean), // Remove undefined values
-    credentials: false, // Since no auth, you don't need credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// CORS configuration - written from scratch
+app.use((req, res, next) => {
+  // Define allowed origins
+  const allowedOrigins = [
+    "https://movies-tv-shows-flame.vercel.app",
+    "http://localhost:5173",
+    process.env.FRONTEND_URL
+  ].filter(Boolean);
+
+  const origin = req.headers.origin;
+  
+  // Check if origin is allowed
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  // Set CORS headers
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "false");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+  next();
+});
 
 // Add security headers
 app.use(helmet());
@@ -71,23 +86,22 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start the server
-// For Vercel deployment, we don't need to listen on a port
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, async () => {
-    try {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Health check: http://localhost:${PORT}/health`);
-      console.log(`API base: http://localhost:${PORT}/api/movies`);
+// Start the server for Railway
+app.listen(PORT, "0.0.0.0", async () => {
+  try {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+    console.log(`API base: http://localhost:${PORT}/api/movies`);
+    console.log(`Host: 0.0.0.0`);
 
-      // Initialize database
+    // Initialize database with Railway MySQL
+    try {
       await initDatabase();
       console.log("Database initialized successfully");
     } catch (error) {
-      console.error("Failed to start server:", error);
+      console.log("Database initialization failed:", error.message);
     }
-  });
-}
-
-// Export for Vercel
-export default app;
+  } catch (error) {
+    console.error("Failed to start server:", error);
+  }
+});

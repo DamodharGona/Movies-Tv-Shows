@@ -11,24 +11,25 @@ const getDatabaseConfig = () => {
   console.log("MYSQLHOST exists:", !!process.env.MYSQLHOST);
   console.log("DB_HOST exists:", !!process.env.DB_HOST);
   
-  // Check if DATABASE_URL is available (Vercel/Railway provides this)
-  if (process.env.DATABASE_URL) {
-    console.log("Using DATABASE_URL connection");
-    return {
-      connectionString: process.env.DATABASE_URL,
-      useConnectionString: true,
-    };
-  }
-
-  // Check for Railway MySQL variables (if still using Railway DB)
+  // Check for Railway MySQL variables
   if (process.env.MYSQLHOST) {
+    console.log("Using Railway MySQL configuration");
     return {
       host: process.env.MYSQLHOST,
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE,
-      port: process.env.MYSQLPORT,
+      port: process.env.MYSQLPORT || 3306,
       useConnectionString: false,
+    };
+  }
+
+  // Check if DATABASE_URL is available
+  if (process.env.DATABASE_URL) {
+    console.log("Using DATABASE_URL connection");
+    return {
+      connectionString: process.env.DATABASE_URL,
+      useConnectionString: true,
     };
   }
 
