@@ -63,15 +63,17 @@ app.use((error, req, res, next) => {
 // Start the server
 app.listen(PORT, async () => {
   try {
-    // Initialize database
-    await initDatabase();
-    console.log("Database initialized successfully");
-
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`API base: http://localhost:${PORT}/api/movies`);
+    
+    // Temporarily comment out database initialization to isolate the issue
+    // await initDatabase();
+    // console.log("Database initialized successfully");
+    
   } catch (error) {
     console.error("Failed to start server:", error);
-    process.exit(1);
+    // Don't exit, just log the error
+    // process.exit(1);
   }
 });

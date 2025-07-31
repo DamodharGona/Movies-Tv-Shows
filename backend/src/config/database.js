@@ -6,8 +6,14 @@ dotenv.config();
 
 // Get database configuration from environment variables
 const getDatabaseConfig = () => {
+  console.log("Database configuration check:");
+  console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+  console.log("MYSQLHOST exists:", !!process.env.MYSQLHOST);
+  console.log("DB_HOST exists:", !!process.env.DB_HOST);
+  
   // Check if DATABASE_URL is available (Railway provides this)
   if (process.env.DATABASE_URL) {
+    console.log("Using DATABASE_URL connection");
     return {
       connectionString: process.env.DATABASE_URL,
       useConnectionString: true,
