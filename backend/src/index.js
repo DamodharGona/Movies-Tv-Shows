@@ -4,7 +4,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import movieRoutes from "./routes/movieRoutes.js";
-// import { initDatabase } from "./config/database.js";
+import { initDatabase } from "./config/database.js";
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +25,7 @@ app.use(
     ].filter(Boolean), // Remove undefined values
     credentials: false, // Since no auth, you don't need credentials
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -78,9 +79,9 @@ app.listen(PORT, "0.0.0.0", async () => {
     console.log(`API base: http://localhost:${PORT}/api/movies`);
     console.log(`Host: 0.0.0.0`);
 
-    // Temporarily comment out database initialization to isolate the issue
-    // await initDatabase();
-    // console.log("Database initialized successfully");
+    // Initialize database with Railway MySQL
+    await initDatabase();
+    console.log("Database initialized successfully");
   } catch (error) {
     console.error("Failed to start server:", error);
     // Don't exit, just log the error
