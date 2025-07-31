@@ -31,6 +31,53 @@ A full-stack web application for managing your personal collection of favorite m
 - JWT (for user authentication)
 - bcryptjs (for password security)
 
+## Deployment
+
+### Backend Deployment Options
+
+#### Option 1: Railway (Recommended)
+
+Railway is the easiest option for deploying the backend with MySQL support.
+
+**Steps:**
+1. Connect your GitHub repository to Railway
+2. Railway will automatically detect the backend configuration
+3. Set up environment variables in Railway dashboard
+4. Deploy!
+
+**Environment Variables for Railway:**
+```
+PORT=5001
+NODE_ENV=production
+DB_HOST=your-mysql-host
+DB_USER=your-mysql-user
+DB_PASSWORD=your-mysql-password
+DB_NAME=movie_app
+DB_PORT=3306
+JWT_SECRET=your-jwt-secret-key
+CORS_ORIGIN=https://your-frontend-domain.vercel.app
+```
+
+#### Option 2: Vercel (Serverless)
+
+Vercel can deploy the backend as serverless functions, but has limitations with MySQL.
+
+**Steps:**
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run `vercel` in the project root
+3. Configure environment variables in Vercel dashboard
+
+**Note:** For Vercel, you'll need to use a cloud MySQL service like PlanetScale or Railway's MySQL.
+
+### Frontend Deployment (Vercel/Netlify)
+
+The frontend can be deployed to Vercel or Netlify.
+
+**Environment Variables:**
+```
+VITE_API_URL=https://your-backend-url.railway.app
+```
+
 ## How to Run This Project
 
 ### Step 1: Install Dependencies
