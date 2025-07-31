@@ -72,19 +72,22 @@ app.use((error, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, "0.0.0.0", async () => {
-  try {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`API base: http://localhost:${PORT}/api/movies`);
-    console.log(`Host: 0.0.0.0`);
+// For Vercel deployment, we don't need to listen on a port
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, async () => {
+    try {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/health`);
+      console.log(`API base: http://localhost:${PORT}/api/movies`);
 
-    // Initialize database with Railway MySQL
-    await initDatabase();
-    console.log("Database initialized successfully");
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    // Don't exit, just log the error
-    // process.exit(1);
-  }
-});
+      // Initialize database
+      await initDatabase();
+      console.log("Database initialized successfully");
+    } catch (error) {
+      console.error("Failed to start server:", error);
+    }
+  });
+}
+
+// Export for Vercel
+export default app;

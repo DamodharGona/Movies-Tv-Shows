@@ -6,9 +6,6 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test-server": "node test-server.js",
-    "simple": "node simple-server.js",
-    "minimal": "node minimal-server.js",
     "dev": "nodemon src/index.js",
     "build": "echo 'No build step required for Express.js'"
   },
