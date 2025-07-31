@@ -198,9 +198,56 @@ const insertSampleData = async () => {
   }
 };
 
+// Function to migrate database schema
+const migrateDatabase = async () => {
+  try {
+    const connection = await createConnection();
+    
+    // Check if users table exists
+    const [tables] = await connection.query("SHOW TABLES LIKE 'users'");
+    
+    if (tables.length > 0) {
+      console.log("Migrating database schema...");
+      
+      // Drop the foreign key constraint first
+      try {
+        await connection.query("ALTER TABLE movies DROP FOREIGN KEY movies_ibfk_1");
+      } catch (error) {
+        console.log("Foreign key constraint already removed or doesn't exist");
+      }
+      
+      // Remove user_id column from movies table
+      try {
+        await connection.query("ALTER TABLE movies DROP COLUMN user_id");
+        console.log("Removed user_id column from movies table");
+      } catch (error) {
+        console.log("user_id column already removed or doesn't exist");
+      }
+      
+      // Drop the users table
+      try {
+        await connection.query("DROP TABLE users");
+        console.log("Dropped users table");
+      } catch (error) {
+        console.log("Users table already dropped or doesn't exist");
+      }
+      
+      console.log("Database migration completed successfully");
+    } else {
+      console.log("No migration needed - users table doesn't exist");
+    }
+    
+    await connection.end();
+  } catch (error) {
+    console.error("Error during database migration:", error);
+    throw error;
+  }
+};
+
 // Initialize database
 const initDatabase = async () => {
   try {
+    await migrateDatabase();
     await createTables();
     await insertSampleData();
     console.log("Database initialized successfully");
