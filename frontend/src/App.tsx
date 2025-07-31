@@ -10,11 +10,8 @@ import {
 import { MovieForm } from "@/components/MovieForm";
 import { MovieTable } from "@/components/MovieTable";
 import { MovieFilter } from "@/components/MovieFilter";
-import { LoginForm } from "@/components/LoginForm";
-import { SignupForm } from "@/components/SignupForm";
 import { Toast } from "@/components/Toast";
 import { apiService } from "@/services/api";
-import { authService, type User } from "@/services/authService";
 import { useToast } from "@/hooks/useToast";
 import type { Movie, NewMovie } from "@/types/movie";
 import {
@@ -22,8 +19,6 @@ import {
   FaSearch,
   FaFilter,
   FaPlus,
-  FaUser,
-  FaSignOutAlt,
 } from "react-icons/fa";
 
 // This interface defines what data we need for filtering movies
@@ -44,24 +39,17 @@ function App() {
   const [hasMore, setHasMore] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
 
   // Toast hook for showing notifications
   const { toast, isVisible, hideToast, showSuccess, showError, showInfo } =
     useToast();
 
-  // Check if user is logged in when the app starts
+  // Load movies when the app starts
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
+    loadMovies();
   }, []);
 
   // Function to load movies from the API
@@ -199,137 +187,6 @@ function App() {
     }
   };
 
-  // Function to handle login
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      setAuthLoading(true);
-      const response = await authService.login(email, password);
-
-      // Store user data and token
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      setUser(response.data.user);
-      setShowLogin(false);
-      showSuccess("Login successful!");
-    } catch (error) {
-      console.error("Login failed:", error);
-      showError("Login failed. Please check your credentials.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // Function to handle signup
-  const handleSignup = async (
-    name: string,
-    email: string,
-    password: string
-  ) => {
-    try {
-      setAuthLoading(true);
-      const response = await authService.signup(name, email, password);
-
-      // Store user data and token
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      setUser(response.data.user);
-      setShowSignup(false);
-      showSuccess("Account created successfully!");
-    } catch (error) {
-      console.error("Signup failed:", error);
-      showError("Signup failed. Please try again.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-    setMovies([]);
-    showInfo("Logged out successfully!");
-  };
-
-  // Function to switch between login and signup
-  const handleSwitchToSignup = () => {
-    setShowLogin(false);
-    setShowSignup(true);
-  };
-
-  const handleSwitchToLogin = () => {
-    setShowSignup(false);
-    setShowLogin(true);
-  };
-
-  // If user is not logged in, show login/signup
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-8">
-            <FaFilm className="text-blue-600 text-4xl mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              My Favorite Movies & TV Shows
-            </h1>
-            <p className="text-gray-600">
-              Manage your personal collection of favorite movies and TV shows
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <Button
-              onClick={() => setShowLogin(true)}
-              variant="outline"
-              className="w-full hover:cursor-pointer"
-            >
-              <FaUser className="mr-2" />
-              Login
-            </Button>
-            <Button
-              onClick={() => setShowSignup(true)}
-              variant="outline"
-              className="w-full hover:cursor-pointer"
-            >
-              Create Account
-            </Button>
-          </div>
-
-          {/* Login Form */}
-          <LoginForm
-            isOpen={showLogin}
-            onClose={() => setShowLogin(false)}
-            onLogin={handleLogin}
-            onSwitchToSignup={handleSwitchToSignup}
-            isLoading={authLoading}
-          />
-
-          {/* Signup Form */}
-          <SignupForm
-            isOpen={showSignup}
-            onClose={() => setShowSignup(false)}
-            onSignup={handleSignup}
-            onSwitchToLogin={handleSwitchToLogin}
-            onPasswordMismatch={() => showError("Passwords do not match!")}
-            isLoading={authLoading}
-          />
-
-          {/* Toast Notification */}
-          {toast && (
-            <Toast
-              message={toast.message}
-              type={toast.type}
-              isVisible={isVisible}
-              onClose={hideToast}
-            />
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-4 sm:py-8">
@@ -338,25 +195,11 @@ function App() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 flex items-center gap-2">
               <FaFilm className="text-blue-600" />
-              My Favorite Movies & TV Shows
+              Movie Collection Manager
             </h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
-                Welcome, {user.name}!
-              </span>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="hover:cursor-pointer"
-              >
-                <FaSignOutAlt className="mr-1" />
-                Logout
-              </Button>
-            </div>
           </div>
           <p className="text-sm sm:text-base text-gray-600">
-            Manage your personal collection of favorite movies and TV shows
+            Manage your collection of favorite movies and TV shows
           </p>
         </div>
 
@@ -386,6 +229,7 @@ function App() {
                   variant="outline"
                   onClick={() => {
                     setSearchQuery("");
+                    loadMovies();
                   }}
                   className="hover:cursor-pointer"
                 >
@@ -403,7 +247,7 @@ function App() {
               variant="outline"
               className="hover:cursor-pointer w-full sm:w-auto"
             >
-              Load My Movies
+              Load All Movies
             </Button>
             <Button
               onClick={() => setShowFilter(true)}
@@ -412,7 +256,7 @@ function App() {
               className="hover:cursor-pointer w-full sm:w-auto"
             >
               <FaFilter className="mr-2" />
-              Filter My Movies
+              Filter Movies
             </Button>
             <Button
               onClick={() => setShowForm(true)}
