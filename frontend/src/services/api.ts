@@ -7,12 +7,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Debug: Log the API base URL to verify it's being set correctly
 console.log("API_BASE_URL:", API_BASE_URL);
 
-// Helper function to get authentication headers
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+// Helper function to get headers
+const getHeaders = () => {
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
   };
 };
 
@@ -28,7 +26,7 @@ export const apiService = {
         `${API_BASE_URL}/api/movies?page=${page}&limit=${limit}`,
         {
           method: "GET",
-          headers: getAuthHeaders(),
+          headers: getHeaders(),
         }
       );
 
@@ -49,7 +47,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/movies/${id}`, {
         method: "GET",
-        headers: getAuthHeaders(),
+        headers: getHeaders(),
       });
 
       if (!response.ok) {
@@ -69,7 +67,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/movies`, {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: getHeaders(),
         body: JSON.stringify(movieData),
       });
 
@@ -90,7 +88,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/movies/${id}`, {
         method: "PUT",
-        headers: getAuthHeaders(),
+        headers: getHeaders(),
         body: JSON.stringify(movieData),
       });
 
@@ -113,7 +111,7 @@ export const apiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/movies/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(),
+        headers: getHeaders(),
       });
 
       if (!response.ok) {
@@ -141,7 +139,7 @@ export const apiService = {
         )}&page=${page}&limit=${limit}`,
         {
           method: "GET",
-          headers: getAuthHeaders(),
+          headers: getHeaders(),
         }
       );
 
@@ -181,7 +179,7 @@ export const apiService = {
         `${API_BASE_URL}/api/movies/filter?${params}`,
         {
           method: "GET",
-          headers: getAuthHeaders(),
+          headers: getHeaders(),
         }
       );
 

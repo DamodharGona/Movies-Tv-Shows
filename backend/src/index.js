@@ -4,7 +4,6 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import movieRoutes from "./routes/movieRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
 import { initDatabase } from "./config/database.js";
 
 // Load environment variables
@@ -54,9 +53,6 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-// Routes for authentication
-app.use("/api/auth", authRoutes);
 
 // Routes for movies
 app.use("/api/movies", movieRoutes);

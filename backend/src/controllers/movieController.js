@@ -1,18 +1,15 @@
 import Movie from "../models/Movie.js";
 
-// Get all movies for the authenticated user
+// Get all movies
 export const getAllMovies = async (req, res) => {
   try {
-    // Get user ID from authenticated request
-    const userId = req.user.id;
-
     // Get page and limit from request, use defaults if not provided
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    // Get movies from database for this user
-    const movies = await Movie.getAll(userId, page, limit);
-    const totalCount = await Movie.getTotalCount(userId);
+    // Get movies from database
+    const movies = await Movie.getAll(page, limit);
+    const totalCount = await Movie.getTotalCount();
 
     // Calculate pagination info
     const pagination = {
@@ -39,13 +36,12 @@ export const getAllMovies = async (req, res) => {
   }
 };
 
-// Get one movie by its ID (only if it belongs to the user)
+// Get one movie by its ID
 export const getMovieById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const userId = req.user.id;
 
-    const movie = await Movie.getById(id, userId);
+    const movie = await Movie.getById(id);
 
     // Check if movie exists
     if (!movie) {
@@ -73,13 +69,12 @@ export const getMovieById = async (req, res) => {
   }
 };
 
-// Create a new movie for the authenticated user
+// Create a new movie
 export const createMovie = async (req, res) => {
   try {
     const movieData = req.body;
-    const userId = req.user.id;
 
-    const newMovie = await Movie.create(movieData, userId);
+    const newMovie = await Movie.create(movieData);
 
     res.status(201).json({
       success: true,
@@ -96,26 +91,25 @@ export const createMovie = async (req, res) => {
   }
 };
 
-// Update an existing movie (only if it belongs to the user)
+// Update an existing movie
 export const updateMovie = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const movieData = req.body;
-    const userId = req.user.id;
 
-    // Check if movie exists and belongs to user before updating
-    const existingMovie = await Movie.getById(id, userId);
+    // Check if movie exists before updating
+    const existingMovie = await Movie.getById(id);
     if (!existingMovie) {
       return res.status(404).json({
         success: false,
         message: "Movie not found",
         errors: [
-          "Movie with the specified ID does not exist or you don't have permission to edit it",
+          "Movie with the specified ID does not exist",
         ],
       });
     }
 
-    const updatedMovie = await Movie.update(id, movieData, userId);
+    const updatedMovie = await Movie.update(id, movieData);
 
     res.json({
       success: true,
@@ -132,25 +126,24 @@ export const updateMovie = async (req, res) => {
   }
 };
 
-// Delete a movie (only if it belongs to the user)
+// Delete a movie
 export const deleteMovie = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const userId = req.user.id;
 
-    // Check if movie exists and belongs to user before deleting
-    const existingMovie = await Movie.getById(id, userId);
+    // Check if movie exists before deleting
+    const existingMovie = await Movie.getById(id);
     if (!existingMovie) {
       return res.status(404).json({
         success: false,
         message: "Movie not found",
         errors: [
-          "Movie with the specified ID does not exist or you don't have permission to delete it",
+          "Movie with the specified ID does not exist",
         ],
       });
     }
 
-    await Movie.delete(id, userId);
+    await Movie.delete(id);
 
     res.json({
       success: true,
@@ -166,11 +159,10 @@ export const deleteMovie = async (req, res) => {
   }
 };
 
-// Search movies for the authenticated user
+// Search movies
 export const searchMovies = async (req, res) => {
   try {
     const query = req.query.q;
-    const userId = req.user.id;
 
     if (!query || query.trim() === "") {
       return res.status(400).json({
@@ -185,7 +177,7 @@ export const searchMovies = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
 
     // Search movies in database
-    const movies = await Movie.search(query, userId, page, limit);
+    const movies = await Movie.search(query, page, limit);
 
     res.json({
       success: true,
@@ -202,18 +194,17 @@ export const searchMovies = async (req, res) => {
   }
 };
 
-// Filter movies for the authenticated user
+// Filter movies
 export const filterMovies = async (req, res) => {
   try {
     const filters = req.query;
-    const userId = req.user.id;
 
     // Get page and limit from request, use defaults if not provided
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     // Filter movies in database
-    const movies = await Movie.filterMovies(filters, userId, page, limit);
+    const movies = await Movie.filterMovies(filters, page, limit);
 
     res.json({
       success: true,

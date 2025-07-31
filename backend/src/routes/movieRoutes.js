@@ -8,12 +8,8 @@ import {
   searchMovies,
   filterMovies,
 } from "../controllers/movieController.js";
-import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
-
-// Apply authentication middleware to all movie routes
-router.use(authenticateToken);
 
 // Route to get all movies for authenticated user
 router.get("/", getAllMovies);

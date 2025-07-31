@@ -17,15 +17,14 @@ const pool = mysql.createPool({
 
 // Movie class to handle database operations
 class Movie {
-  // Get all movies for a specific user with pagination
-  static async getAll(userId, page = 1, limit = 10) {
+  // Get all movies with pagination
+  static async getAll(page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
       const [rows] = await pool.query(
-        `SELECT * FROM movies WHERE user_id = ? ORDER BY created_at DESC LIMIT ${parseInt(
+        `SELECT * FROM movies ORDER BY created_at DESC LIMIT ${parseInt(
           limit
-        )} OFFSET ${parseInt(offset)}`,
-        [userId]
+        )} OFFSET ${parseInt(offset)}`
       );
       return rows;
     } catch (error) {
@@ -33,12 +32,12 @@ class Movie {
     }
   }
 
-  // Get one movie by its ID (only if it belongs to the user)
-  static async getById(id, userId) {
+  // Get one movie by its ID
+  static async getById(id) {
     try {
       const [rows] = await pool.execute(
-        "SELECT * FROM movies WHERE id = ? AND user_id = ?",
-        [parseInt(id), userId]
+        "SELECT * FROM movies WHERE id = ?",
+        [parseInt(id)]
       );
       return rows[0] || null;
     } catch (error) {
@@ -47,12 +46,11 @@ class Movie {
   }
 
   // Add a new movie to database
-  static async create(movieData, userId) {
+  static async create(movieData) {
     try {
       const [result] = await pool.execute(
-        `INSERT INTO movies (user_id, title, type, director, budget, location, duration, year_time, description, rating, poster_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO movies (title, type, director, budget, location, duration, year_time, description, rating, poster_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          userId,
           movieData.title,
           movieData.type,
           movieData.director,
@@ -71,14 +69,14 @@ class Movie {
     }
   }
 
-  // Update an existing movie (only if it belongs to the user)
-  static async update(id, movieData, userId) {
+  // Update an existing movie
+  static async update(id, movieData) {
     try {
       const [result] = await pool.execute(
         `UPDATE movies SET 
          title = ?, type = ?, director = ?, budget = ?, location = ?, 
          duration = ?, year_time = ?, description = ?, rating = ?, poster_url = ?
-         WHERE id = ? AND user_id = ?`,
+         WHERE id = ?`,
         [
           movieData.title,
           movieData.type,
@@ -91,14 +89,11 @@ class Movie {
           movieData.rating || null,
           movieData.poster_url || null,
           parseInt(id),
-          userId,
         ]
       );
 
       if (result.affectedRows === 0) {
-        throw new Error(
-          "Movie not found or you don't have permission to edit it"
-        );
+        throw new Error("Movie not found");
       }
 
       return { id, ...movieData };
@@ -107,18 +102,16 @@ class Movie {
     }
   }
 
-  // Delete a movie (only if it belongs to the user)
-  static async delete(id, userId) {
+  // Delete a movie
+  static async delete(id) {
     try {
       const [result] = await pool.execute(
-        "DELETE FROM movies WHERE id = ? AND user_id = ?",
-        [parseInt(id), userId]
+        "DELETE FROM movies WHERE id = ?",
+        [parseInt(id)]
       );
 
       if (result.affectedRows === 0) {
-        throw new Error(
-          "Movie not found or you don't have permission to delete it"
-        );
+        throw new Error("Movie not found");
       }
 
       return { success: true };
@@ -127,15 +120,15 @@ class Movie {
     }
   }
 
-  // Search movies for a specific user
-  static async search(query, userId, page = 1, limit = 10) {
+  // Search movies
+  static async search(query, page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
       const searchTerm = `%${query}%`;
 
       const [rows] = await pool.query(
         `SELECT * FROM movies 
-         WHERE user_id = ? AND (
+         WHERE (
            title LIKE ? OR 
            director LIKE ? OR 
            location LIKE ? OR
@@ -146,7 +139,6 @@ class Movie {
          ORDER BY created_at DESC 
          LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
         [
-          userId,
           searchTerm,
           searchTerm,
           searchTerm,
@@ -162,12 +154,12 @@ class Movie {
     }
   }
 
-  // Filter movies for a specific user
-  static async filterMovies(filters, userId, page = 1, limit = 10) {
+  // Filter movies
+  static async filterMovies(filters, page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
-      let whereConditions = ["user_id = ?"];
-      let queryParams = [userId];
+      let whereConditions = [];
+      let queryParams = [];
 
       // Add filter conditions
       if (filters.type && filters.type !== "All") {
@@ -200,7 +192,7 @@ class Movie {
         queryParams.push(`%${filters.location}%`);
       }
 
-      const whereClause = whereConditions.join(" AND ");
+      const whereClause = whereConditions.length > 0 ? whereConditions.join(" AND ") : "1=1";
 
       const [rows] = await pool.query(
         `SELECT * FROM movies 
@@ -216,12 +208,11 @@ class Movie {
     }
   }
 
-  // Get total count of movies for a specific user
-  static async getTotalCount(userId) {
+  // Get total count of movies
+  static async getTotalCount() {
     try {
       const [rows] = await pool.execute(
-        "SELECT COUNT(*) as count FROM movies WHERE user_id = ?",
-        [userId]
+        "SELECT COUNT(*) as count FROM movies"
       );
       return rows[0].count;
     } catch (error) {
