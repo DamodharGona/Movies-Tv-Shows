@@ -11,6 +11,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Log the port being used
+console.log(`Using PORT: ${PORT}`);
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+
 // Parse JSON requests
 app.use(express.json());
 
@@ -20,18 +24,21 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "https://movies-tv-shows-flame.vercel.app",
     "http://localhost:5173",
-    process.env.FRONTEND_URL
+    process.env.FRONTEND_URL,
   ].filter(Boolean);
 
   const origin = req.headers.origin;
-  
+
   // Check if origin is allowed
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
   // Set CORS headers
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "false");
 
@@ -89,19 +96,20 @@ app.use((error, req, res, next) => {
 // Start the server for Railway
 app.listen(PORT, "0.0.0.0", async () => {
   try {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`API base: http://localhost:${PORT}/api/movies`);
-    console.log(`Host: 0.0.0.0`);
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
+    console.log(`✅ API base: http://localhost:${PORT}/api/movies`);
+    console.log(`✅ Host: 0.0.0.0`);
+    console.log(`✅ Railway deployment successful!`);
 
     // Initialize database with Railway MySQL
     try {
       await initDatabase();
-      console.log("Database initialized successfully");
+      console.log("✅ Database initialized successfully");
     } catch (error) {
-      console.log("Database initialization failed:", error.message);
+      console.log("❌ Database initialization failed:", error.message);
     }
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("❌ Failed to start server:", error);
   }
 });
