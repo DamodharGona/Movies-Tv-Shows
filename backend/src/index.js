@@ -71,11 +71,12 @@ app.use((error, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, async () => {
+app.listen(PORT, "0.0.0.0", async () => {
   try {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`API base: http://localhost:${PORT}/api/movies`);
+    console.log(`Host: 0.0.0.0`);
 
     // Temporarily comment out database initialization to isolate the issue
     // await initDatabase();
