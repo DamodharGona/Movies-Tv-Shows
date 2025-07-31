@@ -51,26 +51,31 @@ This project is configured for separate deployment of frontend and backend, each
 **Express.js Deployment Steps:**
 
 1. **Navigate to backend directory:**
+
    ```bash
    cd backend
    ```
 
 2. **Install Vercel CLI:**
+
    ```bash
    npm i -g vercel
    ```
 
 3. **Login to Vercel:**
+
    ```bash
    vercel login
    ```
 
 4. **Deploy backend:**
+
    ```bash
    vercel
    ```
 
 5. **Follow the prompts:**
+
    - Set up and deploy? → `Y`
    - Which scope? → Select your account
    - Link to existing project? → `N`
@@ -79,6 +84,7 @@ This project is configured for separate deployment of frontend and backend, each
    - Want to override the settings? → `N`
 
 6. **Set Environment Variables in Vercel Dashboard:**
+
    ```
    DB_HOST=your-mysql-host
    DB_USER=your-mysql-user
@@ -95,6 +101,7 @@ This project is configured for separate deployment of frontend and backend, each
    ```
 
 **Important Notes:**
+
 - Uses `@vercel/node` builder (not a framework option)
 - Functions have 30-second timeout
 - Requires cloud MySQL service (PlanetScale, Railway, AWS RDS)
@@ -105,11 +112,13 @@ This project is configured for separate deployment of frontend and backend, each
 **Steps to Deploy Frontend:**
 
 1. **Navigate to frontend directory:**
+
    ```bash
    cd frontend
    ```
 
 2. **Deploy frontend:**
+
    ```bash
    vercel
    ```
@@ -120,6 +129,7 @@ This project is configured for separate deployment of frontend and backend, each
    ```
 
 **Environment Variables for Frontend:**
+
 ```
 VITE_API_URL=https://your-backend-url.vercel.app
 ```

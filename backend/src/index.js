@@ -19,8 +19,8 @@ app.use(express.json());
 // Allow requests from frontend
 const allowedOrigins = [
   "http://localhost:5173", // For local development
-  "https://favorite-movies-tv-shows.vercel.app", // Your Vercel frontend
-];
+  process.env.FRONTEND_URL, // Frontend URL from environment variable
+].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({

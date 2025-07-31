@@ -7,8 +7,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "build": "echo 'No build step required for Express.js'",
-    "vercel-build": "echo 'No build step required'"
+    "build": "echo 'No build step required for Express.js'"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -31,8 +30,7 @@
     "movies",
     "api",
     "express",
-    "mysql",
-    "vercel"
+    "mysql"
   ],
   "author": "Damodhar Gona",
   "license": "MIT"
