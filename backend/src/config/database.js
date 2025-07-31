@@ -90,25 +90,10 @@ const createTables = async () => {
       await connection.query("USE movie_app");
     }
 
-    // Create users table
-    const createUsersTableQuery = `
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `;
-    await connection.query(createUsersTableQuery);
-    console.log("Users table created successfully");
-
     // Create movies table
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS movies (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
         title VARCHAR(255) NOT NULL,
         type ENUM('Movie', 'TV Show') NOT NULL,
         director VARCHAR(255) NOT NULL,
@@ -120,8 +105,7 @@ const createTables = async () => {
         rating DECIMAL(3,1),
         poster_url TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `;
     await connection.query(createTableQuery);
@@ -137,27 +121,6 @@ const createTables = async () => {
 // Function to insert sample data
 const insertSampleData = async () => {
   try {
-    // Check if default user exists
-    const [existingUser] = await pool.execute(
-      "SELECT id FROM users WHERE email = ?",
-      ["demo@example.com"]
-    );
-
-    let userId;
-    if (existingUser.length === 0) {
-      // Create default user
-      const createUserQuery =
-        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-      const [result] = await pool.execute(createUserQuery, [
-        "Demo User",
-        "demo@example.com",
-        "$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password: password
-      ]);
-      userId = result.insertId;
-      console.log("Default user created with ID:", userId);
-    } else {
-      userId = existingUser[0].id;
-    }
 
     // Sample movies to add
     const sampleMovies = [
@@ -205,16 +168,15 @@ const insertSampleData = async () => {
     // Insert sample movies
     for (const movie of sampleMovies) {
       const checkQuery =
-        "SELECT id FROM movies WHERE title = ? AND user_id = ?";
-      const [existing] = await pool.execute(checkQuery, [movie.title, userId]);
+        "SELECT id FROM movies WHERE title = ?";
+      const [existing] = await pool.execute(checkQuery, [movie.title]);
 
       if (existing.length === 0) {
         const insertQuery = `
-          INSERT INTO movies (user_id, title, type, director, budget, location, duration, year_time, description, rating, poster_url)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO movies (title, type, director, budget, location, duration, year_time, description, rating, poster_url)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         await pool.execute(insertQuery, [
-          userId,
           movie.title,
           movie.type,
           movie.director,
