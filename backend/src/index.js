@@ -13,7 +13,8 @@ const PORT = process.env.PORT || 5001;
 
 // Log the port being used
 console.log(`Using PORT: ${PORT}`);
-console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+console.log(`Railway PORT: ${process.env.PORT || "not set"}`);
 
 // Parse JSON requests
 app.use(express.json());
@@ -62,13 +63,24 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Simple health check endpoint
+// Simple health check endpoint for Railway
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     message: "Server is running",
     timestamp: new Date().toISOString(),
-    database: "temporarily disabled for debugging",
+    port: process.env.PORT || "not set",
+    environment: process.env.NODE_ENV || "development"
+  });
+});
+
+// Root endpoint for Railway health check
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Movie API is running",
+    timestamp: new Date().toISOString(),
+    port: process.env.PORT || "not set"
   });
 });
 
