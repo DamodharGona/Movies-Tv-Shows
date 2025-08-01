@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "build": "echo 'No build step required for Express.js'"
+    "build": "echo 'No build step required for Express.js'",
+    "test:cors": "node test-cors.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -18,7 +19,8 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

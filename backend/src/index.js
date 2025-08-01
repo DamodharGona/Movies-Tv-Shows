@@ -32,51 +32,62 @@ console.log(`Dynamic PORT: ${process.env.PORT || "fallback to 3000"}`);
 // Parse JSON requests
 app.use(express.json());
 
-// ✅ FIXED CORS Configuration
+// ✅ IMPROVED CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173", // Local development
   "http://localhost:3000", // Local development alternative
+  "http://localhost:4173", // Vite preview
   "https://movies-tv-shows-flame.vercel.app", // Your Vercel deployment
-  "https://movies-tv-shows-production.up.railway.app", // Your Railway deployment (for testing)
+  "https://movies-tv-shows-production.up.railway.app", // Your Railway deployment
+  "https://movies-tv-shows-frontend.vercel.app", // Alternative frontend URL
 ];
 
-// More permissive CORS configuration
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-      if (!origin) return callback(null, true);
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin) {
+      console.log("✅ Allowing request with no origin");
+      return callback(null, true);
+    }
 
-      // Check if origin is in allowed list
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      console.log(`✅ Allowing origin: ${origin}`);
+      return callback(null, true);
+    }
 
-      // For development, be more lenient
-      if (process.env.NODE_ENV !== "production") {
-        return callback(null, true);
-      }
+    // For development, be more lenient
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`✅ Development mode - allowing origin: ${origin}`);
+      return callback(null, true);
+    }
 
-      console.log("CORS blocked origin:", origin);
-      return callback(new Error(`Not allowed by CORS: ${origin}`));
-    },
-    credentials: true, // Allow cookies/credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Origin",
-      "X-Requested-With",
-      "Content-Type",
-      "Accept",
-      "Authorization",
-      "Cache-Control",
-      "Pragma",
-    ],
-    optionsSuccessStatus: 200,
-  })
-);
+    console.log(`❌ CORS blocked origin: ${origin}`);
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true, // Allow cookies/credentials
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "Cache-Control",
+    "Pragma",
+    "X-API-Key",
+  ],
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  preflightContinue: false,
+  maxAge: 86400, // Cache preflight for 24 hours
+};
 
-// Handle preflight requests explicitly
-app.options("*", cors());
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly for all routes
+app.options("*", cors(corsOptions));
 
 // Add security headers (but allow CORS)
 app.use(
@@ -164,6 +175,7 @@ app.use((error, req, res, next) => {
       success: false,
       message: "CORS policy violation",
       error: error.message,
+      allowedOrigins: allowedOrigins,
     });
   }
 
