@@ -21,14 +21,26 @@ console.log(`Dynamic PORT: ${process.env.PORT || "fallback to 3000"}`);
 // Parse JSON requests
 app.use(express.json());
 
-// ✅ Allow frontend domain only (secure CORS)
-app.use(cors({
-  origin: "https://movies-tv-shows-flame.vercel.app",
-  credentials: true,
-}));
+// ✅ Allow only Vercel frontend in production; allow localhost in dev
+const allowedOrigins = [
+  "http://localhost:5173", // for local frontend
+  "https://movies-tv-shows-flame.vercel.app", // replace with your actual deployed Vercel URL
+];
 
-// Handles pre-flight requests for all routes
-app.options("*", cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like curl/postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Add security headers
 app.use(helmet());
