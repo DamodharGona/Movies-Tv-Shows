@@ -13,13 +13,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Prevent unexpected process exits
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
   // Don't exit, let Railway handle it
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
   // Don't exit, let Railway handle it
 });
 
@@ -194,7 +194,6 @@ app.listen(PORT, "0.0.0.0", async () => {
         console.log("❌ Database initialization failed:", error.message);
         console.log("⚠️  Server will continue running without database");
       });
-
   } catch (error) {
     console.error("❌ Failed to start server:", error);
     // Don't exit the process, let Railway handle it
