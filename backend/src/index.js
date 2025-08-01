@@ -21,17 +21,14 @@ console.log(`Dynamic PORT: ${process.env.PORT || "fallback to 3000"}`);
 // Parse JSON requests
 app.use(express.json());
 
-// CORS configuration - allow Vercel frontend
+// ✅ Allow frontend domain only (secure CORS)
 app.use(cors({
-  origin: [
-    'https://movies-tv-shows-flame.vercel.app',
-    'http://localhost:5173',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: false,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: "https://movies-tv-shows-flame.vercel.app",
+  credentials: true,
 }));
+
+// Handles pre-flight requests for all routes
+app.options("*", cors());
 
 // Add security headers
 app.use(helmet());
