@@ -2,6 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import cors from "cors";
 import movieRoutes from "./routes/movieRoutes.js";
 import { initDatabase } from "./config/database.js";
 
@@ -20,25 +21,17 @@ console.log(`Dynamic PORT: ${process.env.PORT || "fallback to 3000"}`);
 // Parse JSON requests
 app.use(express.json());
 
-// CORS configuration - written from scratch
-app.use((req, res, next) => {
-  // Allow all origins for now to fix CORS issue
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "false");
-
-  // Handle preflight requests
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-
-  next();
-});
+// CORS configuration - allow Vercel frontend
+app.use(cors({
+  origin: [
+    'https://movies-tv-shows-flame.vercel.app',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Add security headers
 app.use(helmet());
