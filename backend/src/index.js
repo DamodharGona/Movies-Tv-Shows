@@ -54,38 +54,44 @@ const allowedOrigins = [
   "https://movies-tv-shows-flame.vercel.app", // Vercel frontend
 ];
 
-// ✅ FIXED CORS Configuration
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        console.log(`✅ Allowed origin: ${origin || "none"}`);
-        return callback(null, true);
-      }
-      console.warn(`❌ Blocked origin: ${origin}`);
-      return callback(new Error("CORS policy violation"));
-    },
-    credentials: true, // ✅ ADDED: Allow credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: [
-      "Origin",
-      "X-Requested-With",
-      "Content-Type",
-      "Accept",
-      "Authorization",
-      "Cache-Control",
-      "Pragma",
-    ], // ✅ ADDED: Explicit headers
-    optionsSuccessStatus: 200, // ✅ ADDED: Some browsers need this
-  })
-);
+// ✅ FIXED: Shared CORS configuration
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      console.log(`✅ Allowed origin: ${origin || "none"}`);
+      return callback(null, true);
+    }
+    console.warn(`❌ Blocked origin: ${origin}`);
+    return callback(new Error("CORS policy violation"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "Cache-Control",
+    "Pragma",
+  ],
+  optionsSuccessStatus: 200,
+};
 
-// ✅ ADDED: Handle preflight requests explicitly
-app.options("*", cors());
+// ✅ FIXED: Use shared CORS configuration for all requests
+app.use(cors(corsOptions));
+
+// ✅ FIXED: Use same CORS configuration for preflight requests
+app.options("*", cors(corsOptions));
+
+// ✅ ADDED: Check for allowed origins
+if (allowedOrigins.length === 0) {
+  console.warn("⚠️ WARNING: No allowed CORS origins set.");
+}
 
 app.use((req, res, next) => {
   console.log(
-    `${req.method} ${req.originalUrl} from ${req.get("Origin") || "unknown"}`
+    `${req.method} ${req.originalUrl} from Origin: ${req.get("Origin") || "unknown"} | Referer: ${req.get("Referer") || "none"} | Host: ${req.get("Host")}`
   );
   next();
 });
