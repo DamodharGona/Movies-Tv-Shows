@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import cors from "cors";
 import movieRoutes from "./routes/movieRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { initDatabase } from "./config/database.js";
 
 // Load environment variables
@@ -123,6 +124,10 @@ app.get("/test", (req, res) => {
   });
 });
 
+// Authentication routes
+app.use("/api/auth", authRoutes);
+
+// Movie routes (require authentication)
 app.use("/api/movies", movieRoutes);
 
 app.use("*", (req, res) => {
@@ -152,7 +157,8 @@ app.use((error, req, res, next) => {
 // ✅ FIXED: Non-blocking server startup
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
-  console.log(`✅ API available at /api/movies`);
+  console.log(`✅ Auth API available at /api/auth`);
+  console.log(`✅ Movies API available at /api/movies`);
   console.log(`✅ Accepting requests from: ${allowedOrigins.join(", ")}`);
   console.log(`✅ Railway deployment successful!`);
 
