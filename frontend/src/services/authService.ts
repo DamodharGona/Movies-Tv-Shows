@@ -56,7 +56,7 @@ class AuthService {
   // Login user
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await apiService.post("/auth/login", {
+      const response = await apiService.post("/api/auth/login", {
         email,
         password,
       });
@@ -76,7 +76,7 @@ class AuthService {
   // Register user
   async register(username: string, email: string, password: string): Promise<AuthResponse> {
     try {
-      const response = await apiService.post("/auth/register", {
+      const response = await apiService.post("/api/auth/register", {
         username,
         email,
         password,
@@ -108,7 +108,7 @@ class AuthService {
         return false;
       }
 
-      const response = await apiService.get("/auth/verify");
+      const response = await apiService.get("/api/auth/verify");
       return response.valid;
     } catch (error) {
       // If verification fails, clear auth data
@@ -120,7 +120,7 @@ class AuthService {
   // Get current user profile
   async getProfile(): Promise<User> {
     try {
-      const response = await apiService.get("/auth/profile");
+      const response = await apiService.get("/api/auth/profile");
       const user = response.user;
       this.setUser(user);
       return user;
@@ -132,7 +132,7 @@ class AuthService {
   // Update user profile
   async updateProfile(updates: { username?: string; email?: string }): Promise<User> {
     try {
-      const response = await apiService.put("/auth/profile", updates);
+      const response = await apiService.put("/api/auth/profile", updates);
       const user = response.user;
       this.setUser(user);
       return user;
@@ -144,7 +144,7 @@ class AuthService {
   // Change password
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      await apiService.put("/auth/change-password", {
+      await apiService.put("/api/auth/change-password", {
         currentPassword,
         newPassword,
       });
@@ -153,10 +153,10 @@ class AuthService {
     }
   }
 
-  // Delete account
+  // Delete user account
   async deleteAccount(): Promise<void> {
     try {
-      await apiService.delete("/auth/account");
+      await apiService.delete("/api/auth/account");
       this.logout();
     } catch (error) {
       throw error;
