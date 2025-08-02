@@ -4,273 +4,93 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-// Get database configuration from environment variables
-const getDatabaseConfig = () => {
-  console.log("Database configuration check:");
-  console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-  console.log("MYSQLHOST exists:", !!process.env.MYSQLHOST);
-  console.log("DB_HOST exists:", !!process.env.DB_HOST);
-  
-  // Check for Railway MySQL variables
-  if (process.env.MYSQLHOST) {
-    console.log("Using Railway MySQL configuration");
-    return {
-      host: process.env.MYSQLHOST,
-      user: process.env.MYSQLUSER,
-      password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE,
-      port: process.env.MYSQLPORT || 3306,
-      useConnectionString: false,
-    };
-  }
-
-  // Check if DATABASE_URL is available
-  if (process.env.DATABASE_URL) {
-    console.log("Using DATABASE_URL connection");
-    return {
-      connectionString: process.env.DATABASE_URL,
-      useConnectionString: true,
-    };
-  }
-
-  // Fallback to individual environment variables
-  return {
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    database: process.env.DB_NAME || "movie_app",
-    useConnectionString: false,
-  };
-};
-
 // Create connection pool
-const createPool = () => {
-  const config = getDatabaseConfig();
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
-  if (config.useConnectionString) {
-    // Use connection string (Railway)
-    return mysql.createPool(config.connectionString);
-  } else {
-    // Use individual parameters
-    return mysql.createPool({
-      host: config.host,
-      user: config.user,
-      password: config.password,
-      database: config.database,
-      port: config.port,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      acquireTimeout: 60000,
-      timeout: 60000,
-      reconnect: true,
-    });
-  }
-};
-
-// Create connection for initial setup
-const createConnection = async () => {
-  const config = getDatabaseConfig();
-
-  if (config.useConnectionString) {
-    // Use connection string (Railway)
-    return await mysql.createConnection(config.connectionString);
-  } else {
-    // Use individual parameters
-    return await mysql.createConnection({
-      host: config.host,
-      user: config.user,
-      password: config.password,
-      port: config.port,
-    });
-  }
-};
-
-// Create the connection pool
-const pool = createPool();
-
-// Function to create database and tables
-const createTables = async () => {
+// Initialize database with tables
+export const initDatabase = async () => {
   try {
-    console.log("Creating database tables...");
-    const connection = await createConnection();
+    console.log("🔧 Initializing database...");
 
-    if (!getDatabaseConfig().useConnectionString) {
-      // Only create database if not using connection string
-      await connection.query("CREATE DATABASE IF NOT EXISTS movie_app");
-      await connection.query("USE movie_app");
-    }
-
-    // Create movies table
-    const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS movies (
+    // Create users table
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        type ENUM('Movie', 'TV Show') NOT NULL,
-        director VARCHAR(255) NOT NULL,
-        budget VARCHAR(100),
-        location VARCHAR(255) NOT NULL,
-        duration VARCHAR(100) NOT NULL,
-        year_time VARCHAR(100) NOT NULL,
-        description TEXT,
-        rating DECIMAL(3,1),
-        poster_url TEXT,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
-    `;
-    await connection.query(createTableQuery);
-    console.log("Movies table created successfully");
+    `);
+    console.log("✅ Users table created/verified");
 
-    await connection.end();
-  } catch (error) {
-    console.error("Error creating tables:", error);
-    console.log("Table creation failed, but continuing...");
-    // Don't throw error, just log it
-  }
-};
+    // Check if movies table has user_id column
+    const [columns] = await pool.execute(`
+      SELECT COLUMN_NAME 
+      FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_NAME = 'movies' AND COLUMN_NAME = 'user_id'
+    `);
 
-// Function to insert sample data
-const insertSampleData = async () => {
-  try {
-
-    // Sample movies to add
-    const sampleMovies = [
-      {
-        title: "The Shawshank Redemption",
-        type: "Movie",
-        director: "Frank Darabont",
-        budget: "$25 million",
-        location: "Maine State Prison",
-        duration: "2h 22m",
-        year_time: "1994",
-        description:
-          "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-        rating: 9.3,
-        poster_url: "https://example.com/shawshank.jpg",
-      },
-      {
-        title: "Breaking Bad",
-        type: "TV Show",
-        director: "Vince Gilligan",
-        budget: "$3 million per episode",
-        location: "Albuquerque, New Mexico",
-        duration: "5 seasons",
-        year_time: "2008-2013",
-        description:
-          "A high school chemistry teacher turned methamphetamine manufacturer partners with a former student to secure his family's financial future.",
-        rating: 9.5,
-        poster_url: "https://example.com/breaking-bad.jpg",
-      },
-      {
-        title: "Inception",
-        type: "Movie",
-        director: "Christopher Nolan",
-        budget: "$160 million",
-        location: "Various locations",
-        duration: "2h 28m",
-        year_time: "2010",
-        description:
-          "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-        rating: 8.8,
-        poster_url: "https://example.com/inception.jpg",
-      },
-    ];
-
-    // Insert sample movies
-    for (const movie of sampleMovies) {
-      const checkQuery =
-        "SELECT id FROM movies WHERE title = ?";
-      const [existing] = await pool.execute(checkQuery, [movie.title]);
-
-      if (existing.length === 0) {
-        const insertQuery = `
-          INSERT INTO movies (title, type, director, budget, location, duration, year_time, description, rating, poster_url)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        await pool.execute(insertQuery, [
-          movie.title,
-          movie.type,
-          movie.director,
-          movie.budget,
-          movie.location,
-          movie.duration,
-          movie.year_time,
-          movie.description,
-          movie.rating,
-          movie.poster_url,
-        ]);
-      }
+    if (columns.length === 0) {
+      // Add user_id column to existing movies table
+      await pool.execute(`
+        ALTER TABLE movies 
+        ADD COLUMN user_id INT NOT NULL DEFAULT 1,
+        ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      `);
+      console.log("✅ Added user_id column to movies table");
+    } else {
+      console.log("✅ Movies table already has user_id column");
     }
 
-    console.log("Sample data inserted successfully");
+    // Check if demo user exists
+    const [users] = await pool.execute("SELECT * FROM users WHERE email = 'demo@example.com'");
+    
+    if (users.length === 0) {
+      // Insert demo user
+      await pool.execute(`
+        INSERT INTO users (username, email, password) VALUES 
+        ('demo_user', 'demo@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+      `);
+      console.log("✅ Demo user created (password: 'password')");
+    } else {
+      console.log("✅ Demo user already exists");
+    }
+
+    // Check if movies exist
+    const [movies] = await pool.execute("SELECT COUNT(*) as count FROM movies");
+    
+    if (movies[0].count === 0) {
+      // Insert sample movies for demo user
+      await pool.execute(`
+        INSERT INTO movies (user_id, title, type, director, budget, location, duration, year_time, description, rating, poster_url) VALUES
+        (1, 'Inception', 'Movie', 'Christopher Nolan', '$160M', 'LA, Paris', '148 min', '2010', 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.', 8.8, 'https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg'),
+        (1, 'Breaking Bad', 'TV Show', 'Vince Gilligan', '$3M/ep', 'Albuquerque', '49 min/ep', '2008-2013', 'A high school chemistry teacher turned methamphetamine manufacturer partners with a former student to secure his family\\'s financial future as a terminal illness puts his life in jeopardy.', 9.5, 'https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacMizPGv.png'),
+        (1, 'The Shawshank Redemption', 'Movie', 'Frank Darabont', '$25M', 'Mansfield, Ohio', '142 min', '1994', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 9.3, 'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg'),
+        (1, 'Game of Thrones', 'TV Show', 'David Benioff', '$6M/ep', 'Northern Ireland', '57 min/ep', '2011-2019', 'Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.', 9.3, 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg'),
+        (1, 'The Dark Knight', 'Movie', 'Christopher Nolan', '$185M', 'Chicago, London', '152 min', '2008', 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.', 9.0, 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'),
+        (1, 'Stranger Things', 'TV Show', 'The Duffer Brothers', '$6M/ep', 'Atlanta, Georgia', '51 min/ep', '2016-2024', 'When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces in order to get him back.', 8.7, 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg'),
+        (1, 'Pulp Fiction', 'Movie', 'Quentin Tarantino', '$8.5M', 'Los Angeles', '154 min', '1994', 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.', 8.9, 'https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg'),
+        (1, 'The Office', 'TV Show', 'Greg Daniels', '$2.5M/ep', 'Los Angeles', '22 min/ep', '2005-2013', 'A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.', 8.9, 'https://image.tmdb.org/t/p/w500/qWnJzyZhyy74gjpSjIXWmuk0ifX.jpg'),
+        (1, 'Fight Club', 'Movie', 'David Fincher', '$63M', 'Los Angeles', '139 min', '1999', 'An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much, much more.', 8.8, 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg'),
+        (1, 'Friends', 'TV Show', 'David Crane', '$1M/ep', 'Los Angeles', '22 min/ep', '1994-2004', 'Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.', 8.9, 'https://image.tmdb.org/t/p/w500/f496cm9enuEsZkSPWgVltW7gMKH.jpg')
+      `);
+      console.log("✅ Sample movies created for demo user");
+    } else {
+      console.log("✅ Movies already exist");
+    }
+
+    console.log("✅ Database initialization completed successfully");
   } catch (error) {
-    console.error("Error inserting sample data:", error);
+    console.error("❌ Database initialization failed:", error.message);
     throw error;
   }
 };
 
-// Function to migrate database schema
-const migrateDatabase = async () => {
-  try {
-    console.log("Starting database migration...");
-    const connection = await createConnection();
-    
-    // Check if users table exists
-    const [tables] = await connection.query("SHOW TABLES LIKE 'users'");
-    
-    if (tables.length > 0) {
-      console.log("Users table found, starting migration...");
-      
-      // Drop the foreign key constraint first
-      try {
-        await connection.query("ALTER TABLE movies DROP FOREIGN KEY movies_ibfk_1");
-        console.log("Dropped foreign key constraint");
-      } catch (error) {
-        console.log("Foreign key constraint already removed or doesn't exist:", error.message);
-      }
-      
-      // Remove user_id column from movies table
-      try {
-        await connection.query("ALTER TABLE movies DROP COLUMN user_id");
-        console.log("Removed user_id column from movies table");
-      } catch (error) {
-        console.log("user_id column already removed or doesn't exist:", error.message);
-      }
-      
-      // Drop the users table
-      try {
-        await connection.query("DROP TABLE users");
-        console.log("Dropped users table");
-      } catch (error) {
-        console.log("Users table already dropped or doesn't exist:", error.message);
-      }
-      
-      console.log("Database migration completed successfully");
-    } else {
-      console.log("No migration needed - users table doesn't exist");
-    }
-    
-    await connection.end();
-  } catch (error) {
-    console.error("Error during database migration:", error);
-    // Don't throw error, just log it and continue
-    console.log("Migration failed, but continuing with initialization...");
-  }
-};
-
-// Initialize database
-const initDatabase = async () => {
-  try {
-    console.log("Starting database initialization...");
-    await createTables();
-    await insertSampleData();
-    console.log("Database initialized successfully");
-  } catch (error) {
-    console.error("Failed to initialize database:", error);
-    // Don't throw error, just log it
-    console.log("Database initialization failed, but continuing...");
-  }
-};
-
-export { pool, initDatabase };
+export { pool };
