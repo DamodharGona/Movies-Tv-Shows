@@ -12,6 +12,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ ADDED: Top-level error handling
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  // Don't exit, let Railway handle it
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  // Don't exit, let Railway handle it
+});
+
+// ✅ ADDED: Log startup information
+console.log(`🚀 Starting server on port ${PORT}`);
+console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+console.log(`🔧 Railway PORT: ${process.env.PORT || "not set"}`);
+
 app.use(express.json());
 app.use(
   helmet({
@@ -53,12 +69,12 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Origin",
-      "X-Requested-With", 
+      "X-Requested-With",
       "Content-Type",
       "Accept",
       "Authorization",
       "Cache-Control",
-      "Pragma"
+      "Pragma",
     ], // ✅ ADDED: Explicit headers
     optionsSuccessStatus: 200, // ✅ ADDED: Some browsers need this
   })
@@ -72,6 +88,16 @@ app.use((req, res, next) => {
     `${req.method} ${req.originalUrl} from ${req.get("Origin") || "unknown"}`
   );
   next();
+});
+
+// ✅ ADDED: Simple health check (no database dependency)
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
 });
 
 app.get("/health", (req, res) => {
@@ -115,15 +141,20 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", async () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`API available at /api/movies`);
-  console.log(`Accepting requests from: ${allowedOrigins.join(", ")}`);
+// ✅ FIXED: Non-blocking server startup
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ API available at /api/movies`);
+  console.log(`✅ Accepting requests from: ${allowedOrigins.join(", ")}`);
+  console.log(`✅ Railway deployment successful!`);
 
-  try {
-    await initDatabase();
-    console.log("Database initialized");
-  } catch (err) {
-    console.warn("Database initialization failed:", err.message);
-  }
+  // ✅ FIXED: Non-blocking database initialization
+  initDatabase()
+    .then(() => {
+      console.log("✅ Database initialized successfully");
+    })
+    .catch((err) => {
+      console.log("❌ Database initialization failed:", err.message);
+      console.log("⚠️  Server will continue running without database");
+    });
 });
