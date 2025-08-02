@@ -184,7 +184,7 @@ export const searchMovies = async (req, res) => {
 
     // Search movies in database for the specific user
     const movies = await Movie.search(query, userId, page, limit);
-    const totalCount = await Movie.getTotalCount(userId);
+    const totalCount = await Movie.getSearchCount(query, userId);
 
     // Calculate pagination info
     const pagination = {
@@ -222,7 +222,7 @@ export const filterMovies = async (req, res) => {
 
     // Filter movies in database for the specific user
     const movies = await Movie.filterMovies(filters, userId, page, limit);
-    const totalCount = await Movie.getTotalCount(userId);
+    const totalCount = await Movie.getFilteredCount(filters, userId);
 
     // Calculate pagination info
     const pagination = {

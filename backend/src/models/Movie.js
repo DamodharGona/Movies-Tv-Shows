@@ -219,6 +219,85 @@ class Movie {
       throw new Error(`Error getting total count: ${error.message}`);
     }
   }
+
+  // Get total count of movies for a specific user with filters
+  static async getFilteredCount(filters, userId) {
+    try {
+      let whereConditions = ["user_id = ?"];
+      let queryParams = [parseInt(userId)];
+
+      // Add filter conditions
+      if (filters.type && filters.type !== "All") {
+        whereConditions.push("type = ?");
+        queryParams.push(filters.type);
+      }
+
+      if (filters.director) {
+        whereConditions.push("director LIKE ?");
+        queryParams.push(`%${filters.director}%`);
+      }
+
+      if (filters.yearFrom) {
+        whereConditions.push("year_time >= ?");
+        queryParams.push(filters.yearFrom);
+      }
+
+      if (filters.yearTo) {
+        whereConditions.push("year_time <= ?");
+        queryParams.push(filters.yearTo);
+      }
+
+      if (filters.rating) {
+        whereConditions.push("rating >= ?");
+        queryParams.push(parseFloat(filters.rating));
+      }
+
+      if (filters.location) {
+        whereConditions.push("location LIKE ?");
+        queryParams.push(`%${filters.location}%`);
+      }
+
+      const whereClause = whereConditions.join(" AND ");
+
+      const [rows] = await pool.execute(
+        `SELECT COUNT(*) as count FROM movies WHERE ${whereClause}`,
+        queryParams
+      );
+      return rows[0].count;
+    } catch (error) {
+      throw new Error(`Error getting filtered count: ${error.message}`);
+    }
+  }
+
+  // Get total count of movies for a specific user with search query
+  static async getSearchCount(query, userId) {
+    try {
+      const searchTerm = `%${query}%`;
+      const [rows] = await pool.execute(
+        `SELECT COUNT(*) as count FROM movies 
+         WHERE user_id = ? AND (
+           title LIKE ? OR 
+           director LIKE ? OR 
+           location LIKE ? OR
+           budget LIKE ? OR
+           duration LIKE ? OR
+           year_time LIKE ?
+         )`,
+        [
+          parseInt(userId),
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+        ]
+      );
+      return rows[0].count;
+    } catch (error) {
+      throw new Error(`Error getting search count: ${error.message}`);
+    }
+  }
 }
 
 export default Movie;
