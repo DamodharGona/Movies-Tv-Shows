@@ -1,14 +1,13 @@
 {
-  "name": "movie-app-backend",
+  "name": "favourite-movies-backend",
   "version": "1.0.0",
-  "description": "Backend for Movie Management App",
+  "description": "Backend for my favourite movies and TV shows app",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "build": "echo 'No build step required for Express.js'",
-    "test:cors": "node test-cors.js",
     "setup-db": "node setup-database.js"
   },
   "dependencies": {
@@ -31,10 +30,11 @@
   },
   "keywords": [
     "movies",
-    "api",
+    "tv-shows",
     "express",
-    "mysql"
+    "mysql",
+    "react"
   ],
-  "author": "Damodhar Gona",
+  "author": "Student Developer",
   "license": "MIT"
 }

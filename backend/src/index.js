@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ ADDED: Top-level error handling
+// Add error handling for uncaught exceptions
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception:", error);
   // Don't exit, let Railway handle it
@@ -24,10 +24,10 @@ process.on("unhandledRejection", (reason, promise) => {
   // Don't exit, let Railway handle it
 });
 
-// ✅ ADDED: Log startup information
-console.log(`🚀 Starting server on port ${PORT}`);
-console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-console.log(`🔧 Railway PORT: ${process.env.PORT || "not set"}`);
+// Log startup information
+console.log(`Starting server on port ${PORT}`);
+console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+console.log(`Railway PORT: ${process.env.PORT || "not set"}`);
 
 app.use(express.json());
 app.use(
@@ -55,14 +55,14 @@ const allowedOrigins = [
   "https://movies-tv-shows-flame.vercel.app", // Vercel frontend
 ];
 
-// ✅ FIXED: Shared CORS configuration
+// CORS configuration
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
-      console.log(`✅ Allowed origin: ${origin || "none"}`);
+      console.log(`Allowed origin: ${origin || "none"}`);
       return callback(null, true);
     }
-    console.warn(`❌ Blocked origin: ${origin}`);
+    console.warn(`Blocked origin: ${origin}`);
     return callback(new Error("CORS policy violation"));
   },
   credentials: true,
@@ -79,15 +79,15 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-// ✅ FIXED: Use shared CORS configuration for all requests
+// Use CORS configuration for all requests
 app.use(cors(corsOptions));
 
-// ✅ FIXED: Use same CORS configuration for preflight requests
+// Use same CORS configuration for preflight requests
 app.options("*", cors(corsOptions));
 
-// ✅ ADDED: Check for allowed origins
+// Check for allowed origins
 if (allowedOrigins.length === 0) {
-  console.warn("⚠️ WARNING: No allowed CORS origins set.");
+  console.warn("WARNING: No allowed CORS origins set.");
 }
 
 app.use((req, res, next) => {
@@ -99,7 +99,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ ADDED: Simple health check (no database dependency)
+// Simple health check (no database dependency)
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
@@ -154,21 +154,21 @@ app.use((error, req, res, next) => {
   });
 });
 
-// ✅ FIXED: Non-blocking server startup
+// Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-  console.log(`✅ Auth API available at /api/auth`);
-  console.log(`✅ Movies API available at /api/movies`);
-  console.log(`✅ Accepting requests from: ${allowedOrigins.join(", ")}`);
-  console.log(`✅ Railway deployment successful!`);
+  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Auth API available at /api/auth`);
+  console.log(`Movies API available at /api/movies`);
+  console.log(`Accepting requests from: ${allowedOrigins.join(", ")}`);
+  console.log(`Railway deployment successful!`);
 
-  // ✅ FIXED: Non-blocking database initialization
+  // Initialize database
   initDatabase()
     .then(() => {
-      console.log("✅ Database initialized successfully");
+      console.log("Database initialized successfully");
     })
     .catch((err) => {
-      console.log("❌ Database initialization failed:", err.message);
-      console.log("⚠️  Server will continue running without database");
+      console.log("Database initialization failed:", err.message);
+      console.log("Server will continue running without database");
     });
 });
