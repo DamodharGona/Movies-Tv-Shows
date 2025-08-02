@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "build": "echo 'No build step required for Express.js'",
-    "test:cors": "node test-cors.js"
+    "test:cors": "node test-cors.js",
+    "setup-db": "node setup-database.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
