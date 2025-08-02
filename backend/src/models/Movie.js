@@ -7,8 +7,7 @@ class Movie {
     try {
       const offset = (page - 1) * limit;
       const [rows] = await pool.execute(
-        "SELECT * FROM movies ORDER BY created_at DESC LIMIT ? OFFSET ?",
-        [parseInt(limit), parseInt(offset)]
+        `SELECT * FROM movies ORDER BY created_at DESC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`
       );
       return rows;
     } catch (error) {
@@ -121,7 +120,7 @@ class Movie {
            year_time LIKE ?
          ) 
          ORDER BY created_at DESC 
-         LIMIT ? OFFSET ?`,
+         LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
         [
           searchTerm,
           searchTerm,
@@ -129,8 +128,6 @@ class Movie {
           searchTerm,
           searchTerm,
           searchTerm,
-          parseInt(limit),
-          parseInt(offset),
         ]
       );
 
@@ -184,8 +181,8 @@ class Movie {
         `SELECT * FROM movies 
          WHERE ${whereClause} 
          ORDER BY created_at DESC 
-         LIMIT ? OFFSET ?`,
-        [...queryParams, parseInt(limit), parseInt(offset)]
+         LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
+        queryParams
       );
 
       return rows;
