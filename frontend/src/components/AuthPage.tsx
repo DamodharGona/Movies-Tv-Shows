@@ -50,7 +50,7 @@ export function AuthPage() {
             <FaFilm className="text-6xl text-blue-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Movie Collection Manager
+            Favourite Tv & Movie Shows
           </h1>
           <p className="text-gray-600">
             {mode === "login" 

@@ -228,7 +228,7 @@ function App() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 flex items-center gap-2">
               <FaFilm className="text-blue-600" />
-              Movie Collection Manager
+              Favourite Tv & Movie Shows
             </h1>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -247,7 +247,7 @@ function App() {
             </div>
           </div>
           <p className="text-sm sm:text-base text-gray-600">
-            Manage your personal collection of favorite movies and TV shows
+            Manage your personal collection of favourite movies and TV shows
           </p>
         </div>
 

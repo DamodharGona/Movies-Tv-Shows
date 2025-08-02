@@ -1,7 +1,6 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
-// Load environment variables
 dotenv.config();
 
 // Create connection pool
@@ -15,7 +14,7 @@ const pool = mysql.createPool({
 // Initialize database with tables
 export const initDatabase = async () => {
   try {
-    console.log("🔧 Initializing database...");
+    console.log("Initializing database...");
 
     // Create users table
     await pool.execute(`
@@ -28,7 +27,7 @@ export const initDatabase = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log("✅ Users table created/verified");
+    console.log("Users table created/verified");
 
     // Check if movies table has user_id column
     const [columns] = await pool.execute(`
@@ -44,9 +43,9 @@ export const initDatabase = async () => {
         ADD COLUMN user_id INT NOT NULL DEFAULT 1,
         ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       `);
-      console.log("✅ Added user_id column to movies table");
+      console.log("Added user_id column to movies table");
     } else {
-      console.log("✅ Movies table already has user_id column");
+      console.log("Movies table already has user_id column");
     }
 
     // Check if demo user exists
@@ -58,9 +57,9 @@ export const initDatabase = async () => {
         INSERT INTO users (username, email, password) VALUES 
         ('demo_user', 'demo@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
       `);
-      console.log("✅ Demo user created (password: 'password')");
+      console.log("Demo user created (password: 'password')");
     } else {
-      console.log("✅ Demo user already exists");
+      console.log("Demo user already exists");
     }
 
     // Check if movies exist
@@ -81,14 +80,14 @@ export const initDatabase = async () => {
         (1, 'Fight Club', 'Movie', 'David Fincher', '$63M', 'Los Angeles', '139 min', '1999', 'An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much, much more.', 8.8, 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg'),
         (1, 'Friends', 'TV Show', 'David Crane', '$1M/ep', 'Los Angeles', '22 min/ep', '1994-2004', 'Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.', 8.9, 'https://image.tmdb.org/t/p/w500/f496cm9enuEsZkSPWgVltW7gMKH.jpg')
       `);
-      console.log("✅ Sample movies created for demo user");
+      console.log("Sample movies created for demo user");
     } else {
-      console.log("✅ Movies already exist");
+      console.log("Movies already exist");
     }
 
-    console.log("✅ Database initialization completed successfully");
+    console.log("Database initialization completed successfully");
   } catch (error) {
-    console.error("❌ Database initialization failed:", error.message);
+    console.error("Database initialization failed:", error.message);
     throw error;
   }
 };

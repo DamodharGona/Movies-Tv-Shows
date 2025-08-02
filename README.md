@@ -1,272 +1,146 @@
-# My Favorite Movies & TV Shows Web Application
+# Favourite Tv & Movie Shows
 
-A full-stack web application for managing your personal collection of favorite movies and TV shows.
+This is a simple web application where users can manage their favourite movies and TV shows. I made this project to learn about full-stack development using React, Node.js, and MySQL.
 
-## What This App Does
+## What this project does
 
-- **Personal Collections**: Each user has their own private collection of favorites
-- **User Authentication**: Sign up and login to access your personal movies
-- **Add New Movies**: Add movies and TV shows with details like title, director, budget, etc.
-- **View Your Collection**: See all your entries in a table that loads more as you scroll
-- **Edit & Delete**: Edit any movie details or delete entries with confirmation
-- **Search & Filter**: Search through your collection and filter by type, director, year, etc.
+- Users can create accounts and login
+- Add movies and TV shows to their personal collection
+- Search and filter their movies
+- Edit or delete movies from their list
+- Each user can only see their own movies
 
-## Technologies I Used
+## Technologies I used
 
 ### Frontend
-
-- React with TypeScript (for type safety)
-- Vite (for fast development)
-- Tailwind CSS (for styling)
-- Shadcn UI (for nice-looking components)
+- React with TypeScript
+- Vite for building
+- Tailwind CSS for styling
+- Shadcn UI components
 
 ### Backend
+- Node.js with Express
+- MySQL database
+- JWT for authentication
+- bcrypt for password hashing
 
-- Node.js with Express (for the server)
-- MySQL (for storing data)
-- JWT (for user authentication)
-- bcryptjs (for password security)
+## How to run this project
 
-## Deployment
+### Prerequisites
+- Node.js (version 18 or higher)
+- MySQL database
 
-### Separate Frontend & Backend Deployment
-
-This project is configured for separate deployment of frontend and backend, each with their own `vercel.json` configuration.
-
-**Project Structure:**
-
-```
-├── frontend/
-│   ├── vercel.json        # Frontend Vercel config
-│   └── ...               # React app files
-├── backend/
-│   ├── vercel.json        # Backend Vercel config
-│   ├── package.json       # Backend dependencies
-│   └── src/              # Express.js server
-└── README.md
-```
-
-### Backend Deployment (Vercel)
-
-**Express.js Deployment Steps:**
-
-1. **Navigate to backend directory:**
-
-   ```bash
-   cd backend
-   ```
-
-2. **Install Vercel CLI:**
-
-   ```bash
-   npm i -g vercel
-   ```
-
-3. **Login to Vercel:**
-
-   ```bash
-   vercel login
-   ```
-
-4. **Deploy backend:**
-
-   ```bash
-   vercel
-   ```
-
-5. **Follow the prompts:**
-
-   - Set up and deploy? → `Y`
-   - Which scope? → Select your account
-   - Link to existing project? → `N`
-   - What's your project's name? → `movies-backend`
-   - In which directory is your code located? → `./`
-   - Want to override the settings? → `N`
-
-6. **Set Environment Variables in Vercel Dashboard:**
-
-   ```
-   DB_HOST=your-mysql-host
-   DB_USER=your-mysql-user
-   DB_PASSWORD=your-mysql-password
-   DB_NAME=movie_app
-   DB_PORT=3306
-   JWT_SECRET=your-jwt-secret-key
-   CORS_ORIGIN=https://your-frontend-domain.vercel.app
-   ```
-
-7. **Redeploy with environment variables:**
-   ```bash
-   vercel --prod
-   ```
-
-**Important Notes:**
-
-- Uses `@vercel/node` builder (not a framework option)
-- Functions have 30-second timeout
-- Requires cloud MySQL service (PlanetScale, Railway, AWS RDS)
-- Database connections optimized for serverless
-
-### Frontend Deployment (Vercel)
-
-**Steps to Deploy Frontend:**
-
-1. **Navigate to frontend directory:**
-
-   ```bash
-   cd frontend
-   ```
-
-2. **Deploy frontend:**
-
-   ```bash
-   vercel
-   ```
-
-3. **For production deployment:**
-   ```bash
-   vercel --prod
-   ```
-
-**Environment Variables for Frontend:**
-
-```
-VITE_API_URL=https://your-backend-url.vercel.app
-```
-
-## How to Run This Project
-
-### Step 1: Install Dependencies
-
-Install backend dependencies:
-
+### Backend Setup
+1. Go to the backend folder:
 ```bash
-cd backend && npm install
+cd backend
 ```
 
-Install frontend dependencies:
-
+2. Install dependencies:
 ```bash
-cd frontend && npm install
+npm install
 ```
 
-### Step 2: Set Up MySQL Database
+3. Create a .env file with your database details:
+```
+DATABASE_URL=your_mysql_connection_string
+JWT_SECRET=your_secret_key
+```
 
-You need MySQL installed on your computer. Then run:
+4. Start the server:
+```bash
+npm start
+```
+
+The backend will run on http://localhost:3000
+
+### Frontend Setup
+1. Go to the frontend folder:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a .env file:
+```
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+4. Start the development server:
+```bash
+npm run dev
+```
+
+The frontend will run on http://localhost:5173
+
+## Database Setup
+
+The application will automatically create the necessary tables when you first run it. You can also manually run the database setup:
 
 ```bash
 cd backend
-chmod +x setup-mysql.sh
-./setup-mysql.sh
+npm run setup-db
 ```
 
-This will create the database and add some sample movies for a demo user.
+This will create:
+- Users table for authentication
+- Movies table with user relationships
+- Demo user (email: demo@example.com, password: password)
 
-### Step 3: Start the Servers
+## Features
 
-Start the backend server:
-
-```bash
-cd backend && npm run dev
-```
-
-In a new terminal, start the frontend:
-
-```bash
-cd frontend && npm run dev
-```
-
-### Step 4: Open the App
-
-Go to http://localhost:5173 in your browser.
-
-## How to Use the App
-
-1. **Sign Up/Login**: Create an account or login to access your personal collection
-2. **Load Your Movies**: Click "Load My Movies" to see your collection
-3. **Add New**: Click "Add New Movie" to add a new entry to your favorites
-4. **Search**: Use the search box to find specific movies in your collection
-5. **Filter**: Click "Filter My Movies" to filter by type, director, etc.
-6. **Edit**: Click the "Edit" button on any movie to change details
-7. **Delete**: Click "Delete" to remove a movie from your favorites (it will ask for confirmation)
-
-## Demo Account
-
-For testing, you can use this demo account:
-
-- **Email**: demo@example.com
-- **Password**: password
+- User registration and login
+- Add new movies and TV shows
+- Search movies by title, director, or location
+- Filter movies by type, year, rating, etc.
+- Edit and delete movies
+- Responsive design for mobile and desktop
 
 ## Project Structure
 
 ```
 movie-app/
-├── src/                    # Frontend code
-│   ├── components/        # React components
-│   ├── services/         # API calls
-│   └── types/            # TypeScript types
-├── backend/              # Backend code
+├── backend/          # Node.js server
 │   ├── src/
-│   │   ├── controllers/ # API logic
-│   │   ├── models/      # Database queries
-│   │   ├── routes/      # API endpoints
-│   │   └── middleware/  # Authentication middleware
-│   └── setup-mysql.sh   # Database setup
+│   │   ├── controllers/  # API logic
+│   │   ├── models/       # Database models
+│   │   ├── routes/       # API routes
+│   │   └── middleware/   # Authentication
+│   └── package.json
+├── frontend/         # React application
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── services/     # API calls
+│   │   └── contexts/     # State management
+│   └── package.json
+└── README.md
 ```
 
-## Database Schema
+## Deployment
 
-The movies table stores:
+I deployed this project using:
+- Backend: Railway (Node.js hosting)
+- Frontend: Vercel (React hosting)
+- Database: Railway MySQL
 
-- id (auto-generated)
-- title (movie/show name)
-- type (Movie or TV Show)
-- director
-- budget
-- location
-- duration
-- year_time
-- description (optional)
-- rating (optional)
-- poster_url (optional)
+## What I learned
 
-## API Endpoints
+- How to build a full-stack application
+- User authentication with JWT tokens
+- Database relationships and foreign keys
+- API development with Express
+- React state management
+- Responsive web design
+- Deployment to cloud platforms
 
-- `GET /api/movies` - Get all movies
-- `POST /api/movies` - Add new movie
-- `PUT /api/movies/:id` - Update movie
-- `DELETE /api/movies/:id` - Delete movie
-- `GET /api/movies/search` - Search movies
-- `GET /api/movies/filter` - Filter movies
+## Demo Account
 
-## What I Learned
+You can test the application with:
+- Email: demo@example.com
+- Password: password
 
-Building this project helped me understand:
-
-- How to connect React frontend with Node.js backend
-- Database operations with MySQL
-- API design and RESTful endpoints
-- TypeScript for better code quality
-- Responsive design with Tailwind CSS
-- State management in React
-- Form handling and validation
-
-## Troubleshooting
-
-**Database connection error**: Make sure MySQL is running
-**Port already in use**: The app will automatically try different ports
-**CORS errors**: Check that both frontend and backend are running
-
-## Future Improvements
-
-- Add user authentication
-- Add movie posters/images
-- Add more filter options
-- Add sorting functionality
-- Add movie ratings and reviews
-
-## License
-
-This is a learning project. Feel free to use and modify as needed.
-
-# Favorite-Movies-TV-Shows
+This project helped me understand how to build a complete web application from frontend to backend. I'm still learning and improving my skills!
