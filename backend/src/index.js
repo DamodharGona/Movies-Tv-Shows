@@ -38,19 +38,34 @@ const allowedOrigins = [
   "https://movies-tv-shows-flame.vercel.app", // Vercel frontend
 ];
 
+// ✅ FIXED CORS Configuration
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        console.log(`Allowed origin: ${origin || "none"}`);
+        console.log(`✅ Allowed origin: ${origin || "none"}`);
         return callback(null, true);
       }
-      console.warn(`Blocked origin: ${origin}`);
+      console.warn(`❌ Blocked origin: ${origin}`);
       return callback(new Error("CORS policy violation"));
     },
+    credentials: true, // ✅ ADDED: Allow credentials
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With", 
+      "Content-Type",
+      "Accept",
+      "Authorization",
+      "Cache-Control",
+      "Pragma"
+    ], // ✅ ADDED: Explicit headers
+    optionsSuccessStatus: 200, // ✅ ADDED: Some browsers need this
   })
 );
+
+// ✅ ADDED: Handle preflight requests explicitly
+app.options("*", cors());
 
 app.use((req, res, next) => {
   console.log(
