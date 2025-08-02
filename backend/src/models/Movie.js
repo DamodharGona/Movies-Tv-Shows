@@ -1,19 +1,4 @@
-import mysql from "mysql2/promise";
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
-
-// Create a pool of database connections
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "movie_app",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+import { pool } from "../config/database.js";
 
 // Movie class to handle database operations
 class Movie {
@@ -21,10 +6,9 @@ class Movie {
   static async getAll(page = 1, limit = 10) {
     try {
       const offset = (page - 1) * limit;
-      const [rows] = await pool.query(
-        `SELECT * FROM movies ORDER BY created_at DESC LIMIT ${parseInt(
-          limit
-        )} OFFSET ${parseInt(offset)}`
+      const [rows] = await pool.execute(
+        "SELECT * FROM movies ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        [parseInt(limit), parseInt(offset)]
       );
       return rows;
     } catch (error) {
@@ -126,7 +110,7 @@ class Movie {
       const offset = (page - 1) * limit;
       const searchTerm = `%${query}%`;
 
-      const [rows] = await pool.query(
+      const [rows] = await pool.execute(
         `SELECT * FROM movies 
          WHERE (
            title LIKE ? OR 
@@ -137,7 +121,7 @@ class Movie {
            year_time LIKE ?
          ) 
          ORDER BY created_at DESC 
-         LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
+         LIMIT ? OFFSET ?`,
         [
           searchTerm,
           searchTerm,
@@ -145,6 +129,8 @@ class Movie {
           searchTerm,
           searchTerm,
           searchTerm,
+          parseInt(limit),
+          parseInt(offset),
         ]
       );
 
@@ -194,12 +180,12 @@ class Movie {
 
       const whereClause = whereConditions.length > 0 ? whereConditions.join(" AND ") : "1=1";
 
-      const [rows] = await pool.query(
+      const [rows] = await pool.execute(
         `SELECT * FROM movies 
          WHERE ${whereClause} 
          ORDER BY created_at DESC 
-         LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
-        queryParams
+         LIMIT ? OFFSET ?`,
+        [...queryParams, parseInt(limit), parseInt(offset)]
       );
 
       return rows;

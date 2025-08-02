@@ -91,7 +91,9 @@ if (allowedOrigins.length === 0) {
 
 app.use((req, res, next) => {
   console.log(
-    `${req.method} ${req.originalUrl} from Origin: ${req.get("Origin") || "unknown"} | Referer: ${req.get("Referer") || "none"} | Host: ${req.get("Host")}`
+    `${req.method} ${req.originalUrl} from Origin: ${
+      req.get("Origin") || "unknown"
+    } | Referer: ${req.get("Referer") || "none"} | Host: ${req.get("Host")}`
   );
   next();
 });
