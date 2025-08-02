@@ -184,10 +184,20 @@ export const searchMovies = async (req, res) => {
 
     // Search movies in database for the specific user
     const movies = await Movie.search(query, userId, page, limit);
+    const totalCount = await Movie.getTotalCount(userId);
+
+    // Calculate pagination info
+    const pagination = {
+      page,
+      limit,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    };
 
     res.json({
       success: true,
       data: movies,
+      pagination,
       message: `Found ${movies.length} movies matching "${query}"`,
     });
   } catch (error) {
@@ -212,10 +222,20 @@ export const filterMovies = async (req, res) => {
 
     // Filter movies in database for the specific user
     const movies = await Movie.filterMovies(filters, userId, page, limit);
+    const totalCount = await Movie.getTotalCount(userId);
+
+    // Calculate pagination info
+    const pagination = {
+      page,
+      limit,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    };
 
     res.json({
       success: true,
       data: movies,
+      pagination,
       message: `Found ${movies.length} movies matching your filters`,
     });
   } catch (error) {

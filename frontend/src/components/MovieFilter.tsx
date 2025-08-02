@@ -72,6 +72,9 @@ export const MovieFilter: React.FC<MovieFilterProps> = ({
       <DialogContent className="max-w-md mx-4">
         <DialogHeader>
           <DialogTitle className="text-gray-900">Filter Movies</DialogTitle>
+          <p className="text-sm text-gray-600 mt-1">
+            Fill any combination of fields to filter your movies
+          </p>
         </DialogHeader>
 
         <div className="space-y-4">
