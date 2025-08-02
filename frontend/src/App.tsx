@@ -11,7 +11,9 @@ import { MovieForm } from "@/components/MovieForm";
 import { MovieTable } from "@/components/MovieTable";
 import { MovieFilter } from "@/components/MovieFilter";
 import { Toast } from "@/components/Toast";
+import { AuthPage } from "@/components/AuthPage";
 import { apiService } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import type { Movie, NewMovie } from "@/types/movie";
 import {
@@ -19,6 +21,8 @@ import {
   FaSearch,
   FaFilter,
   FaPlus,
+  FaSignOutAlt,
+  FaUser,
 } from "react-icons/fa";
 
 // This interface defines what data we need for filtering movies
@@ -32,6 +36,9 @@ interface FilterOptions {
 }
 
 function App() {
+  // Authentication
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
   // State variables to store our data
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,10 +54,12 @@ function App() {
   const { toast, isVisible, hideToast, showSuccess, showError, showInfo } =
     useToast();
 
-  // Load movies when the app starts
+  // Load movies when the app starts and user is authenticated
   useEffect(() => {
-    loadMovies();
-  }, []);
+    if (isAuthenticated && !isLoading) {
+      loadMovies();
+    }
+  }, [isAuthenticated, isLoading]);
 
   // Function to load movies from the API
   const loadMovies = async (page: number = 1, append: boolean = false) => {
@@ -187,6 +196,30 @@ function App() {
     }
   };
 
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    showSuccess("Logged out successfully!");
+  };
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication page if not authenticated
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  // Show main app if authenticated
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-4 sm:py-8">
@@ -197,9 +230,24 @@ function App() {
               <FaFilm className="text-blue-600" />
               Movie Collection Manager
             </h1>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <FaUser className="text-blue-600" />
+                <span>Welcome, {user?.username}!</span>
+              </div>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="hover:cursor-pointer"
+              >
+                <FaSignOutAlt className="mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
           <p className="text-sm sm:text-base text-gray-600">
-            Manage your collection of favorite movies and TV shows
+            Manage your personal collection of favorite movies and TV shows
           </p>
         </div>
 
