@@ -42,7 +42,15 @@ export const register = async (req, res) => {
       token: result.token,
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    // Handle specific error messages
+    if (error.message.includes("already exists")) {
+      return res.status(400).json({ 
+        error: error.message 
+      });
+    }
+    res.status(400).json({ 
+      error: "Registration failed. Please try again." 
+    });
   }
 };
 
@@ -67,7 +75,15 @@ export const login = async (req, res) => {
       token: result.token,
     });
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    // Handle specific authentication errors
+    if (error.message.includes("Invalid email or password")) {
+      return res.status(401).json({ 
+        error: "Invalid email or password. Please check your credentials." 
+      });
+    }
+    res.status(401).json({ 
+      error: "Login failed. Please try again." 
+    });
   }
 };
 

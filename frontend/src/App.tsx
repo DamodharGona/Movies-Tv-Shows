@@ -125,9 +125,14 @@ function App() {
       setShowForm(false);
       await loadMovies(); // Refresh the table
       showSuccess("Movie added successfully!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to add movie:", error);
-      showError("Failed to add movie. Please try again.");
+      // Show specific error message for duplicate movies
+      if (error.message && error.message.includes("already have a movie with this title")) {
+        showError(error.message);
+      } else {
+        showError("Failed to add movie. Please try again.");
+      }
     }
   };
 

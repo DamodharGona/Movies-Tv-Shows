@@ -31,9 +31,19 @@ class Movie {
     }
   }
 
-  // Add a new movie to database (with user_id)
+  // Create a new movie for the authenticated user
   static async create(movieData, userId) {
     try {
+      // Check if movie with same title already exists for this user
+      const [existingMovies] = await pool.execute(
+        "SELECT id FROM movies WHERE user_id = ? AND title = ?",
+        [parseInt(userId), movieData.title]
+      );
+
+      if (existingMovies.length > 0) {
+        throw new Error("You already have a movie with this title in your collection");
+      }
+
       const [result] = await pool.execute(
         `INSERT INTO movies (user_id, title, type, director, budget, location, duration, year_time, description, rating, poster_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
