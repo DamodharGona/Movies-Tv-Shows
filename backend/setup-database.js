@@ -12,7 +12,7 @@ const pool = mysql.createPool({
 
 async function setupDatabase() {
   try {
-    console.log("🔧 Setting up database...");
+    console.log("Setting up database...");
 
     // 1. Create users table
     console.log("Creating users table...");
