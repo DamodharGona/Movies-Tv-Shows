@@ -26,7 +26,7 @@ async function setupDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log("✅ Users table created");
+    console.log("Users table created");
 
     // 2. Check if movies table has user_id column
     console.log("Checking movies table structure...");
@@ -42,7 +42,7 @@ async function setupDatabase() {
         ALTER TABLE movies 
         ADD COLUMN user_id INT NOT NULL DEFAULT 1
       `);
-      console.log("✅ Added user_id column to movies table");
+      console.log("Added user_id column to movies table");
       
       // Add foreign key constraint
       try {
@@ -51,12 +51,12 @@ async function setupDatabase() {
           ADD CONSTRAINT fk_movies_user 
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         `);
-        console.log("✅ Added foreign key constraint");
+        console.log("Added foreign key constraint");
       } catch (error) {
-        console.log("⚠️ Foreign key constraint already exists or failed:", error.message);
+        console.log("Foreign key constraint already exists or failed:", error.message);
       }
     } else {
-      console.log("✅ Movies table already has user_id column");
+      console.log("Movies table already has user_id column");
     }
 
     // 3. Create demo user
@@ -68,9 +68,9 @@ async function setupDatabase() {
         INSERT INTO users (username, email, password) VALUES 
         ('demo_user', 'demo@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
       `);
-      console.log("✅ Demo user created (email: demo@example.com, password: password)");
+      console.log("Demo user created (email: demo@example.com, password: password)");
     } else {
-      console.log("✅ Demo user already exists");
+      console.log("Demo user already exists");
     }
 
     // 4. Update existing movies to belong to demo user
@@ -79,7 +79,7 @@ async function setupDatabase() {
     
     if (movies[0].count > 0) {
       await pool.execute("UPDATE movies SET user_id = 1 WHERE user_id = 0 OR user_id IS NULL");
-      console.log("✅ Updated existing movies to belong to demo user");
+      console.log("Updated existing movies to belong to demo user");
     } else {
       console.log("No existing movies to update");
     }
@@ -97,24 +97,24 @@ async function setupDatabase() {
         (1, 'Game of Thrones', 'TV Show', 'David Benioff', '$6M/ep', 'Northern Ireland', '57 min/ep', '2011-2019', 'Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.', 9.3, 'https://image.tmdb.org/t/p/w500/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg'),
         (1, 'The Dark Knight', 'Movie', 'Christopher Nolan', '$185M', 'Chicago, London', '152 min', '2008', 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.', 9.0, 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg')
       `);
-      console.log("✅ Sample movies added");
+      console.log("Sample movies added");
     } else {
-      console.log("✅ Movies already exist");
+      console.log("Movies already exist");
     }
 
     // 6. Show final status
     const [finalUsers] = await pool.execute("SELECT COUNT(*) as count FROM users");
     const [finalMovies] = await pool.execute("SELECT COUNT(*) as count FROM movies");
     
-    console.log("\n📊 Database Setup Complete!");
+    console.log("\n Database Setup Complete!");
     console.log(`Users: ${finalUsers[0].count}`);
     console.log(`Movies: ${finalMovies[0].count}`);
-    console.log("\n🔑 Demo Login:");
+    console.log("\n Demo Login:");
     console.log("Email: demo@example.com");
     console.log("Password: password");
 
   } catch (error) {
-    console.error("❌ Database setup failed:", error.message);
+    console.error("Database setup failed:", error.message);
     throw error;
   } finally {
     await pool.end();
@@ -124,10 +124,10 @@ async function setupDatabase() {
 // Run the setup
 setupDatabase()
   .then(() => {
-    console.log("✅ Database setup completed successfully!");
+    console.log("Database setup completed successfully!");
     process.exit(0);
   })
   .catch((error) => {
-    console.error("❌ Database setup failed:", error);
+    console.error("Database setup failed:", error);
     process.exit(1);
   }); 
